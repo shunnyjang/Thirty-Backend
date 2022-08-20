@@ -38,7 +38,7 @@ export class UserService {
     throw new UnauthorizedException();
   }
 
-  private async setCurrentRefreshToken(refreshToken: string, userId: string) {
+  async setCurrentRefreshToken(refreshToken: string, userId: string) {
     const currentHashedRefreshToken = await hash(refreshToken, 10);
     await this.userRepository.nativeUpdate(
       { id: userId },
