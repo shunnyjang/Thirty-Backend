@@ -17,6 +17,7 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
 import { AuthorizedUserDto } from './dto/authorized-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 
 @ApiCookieAuth('Authentication')
@@ -41,7 +42,7 @@ export class UserController {
     return this.userService.getById(req.user.id);
   }
 
-  @ApiOperation({ summary: `닉네임 수정` })
+  @ApiOperation({ summary: `유저 정보 수정` })
   @ApiBody({
     schema: {
       properties: {
@@ -58,11 +59,11 @@ export class UserController {
     type: AuthorizedUserDto,
   })
   @UseGuards(JwtAuthGuard)
-  @Patch('/profile/nickname')
-  async modifyNickname(
+  @Patch('/profile')
+  async update(
     @Req() req,
-    @Body('nickname') nickname: string,
-  ): Promise<any> {
-    return this.userService.modifyNickname(req.user, nickname);
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<AuthorizedUserDto> {
+    return this.userService.update(req.user, updateUserDto);
   }
 }

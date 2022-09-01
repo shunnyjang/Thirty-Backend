@@ -4,6 +4,9 @@ import { User } from 'src/entities';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { RegisterUserDto } from 'src/auth/dto/register-user.dto';
 import { crypt } from 'src/utils/crypt';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { AuthorizedUserDto } from './dto/authorized-user.dto';
+import { nextTick } from 'process';
 
 @Injectable()
 export class UserService {
@@ -47,9 +50,13 @@ export class UserService {
     return this.userRepository.findOne({ email: email });
   }
 
-  async modifyNickname(user: User, nickname: string) {
-    user.nickname = nickname;
-    this.userRepository.persist(user);
+  async update(
+    user: User,
+    updateUserDto: UpdateUserDto,
+  ): Promise<AuthorizedUserDto> {
+    await this.userRepository.nativeUpdate({ id: user.id }, updateUserDto);
+    if (updateUserDto.nickname) user.nickname = updateUserDto.nickname;
+    if (updateUserDto.visibility) user.visibility = updateUserDto.visibility;
     const { password, refreshToken, ...result } = user;
     return result;
   }

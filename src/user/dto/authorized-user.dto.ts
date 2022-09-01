@@ -35,14 +35,14 @@ export class AuthorizedUserDto {
     description: `첫 버킷 생성 날짜`,
     type: 'datetime',
   })
-  date_joined: string;
+  date_joined: Date;
 
   @ApiProperty({
     example: `2022-08-25T00:56:47.000Z`,
     description: `최근 정보 업데이트 날짜`,
     type: `datetime`,
   })
-  updated_at: string;
+  updated_at: Date;
 
   @ApiProperty({
     example: `BASIC`,
@@ -63,5 +63,5 @@ export class AuthorizedUserDto {
     description: `탈퇴 처리 날짜`,
     type: `datetime`,
   })
-  deleted_at: string;
+  deleted_at: Date;
 }
