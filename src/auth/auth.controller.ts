@@ -1,11 +1,13 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Get,
   Post,
   Req,
   Res,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { User } from 'src/entities';
@@ -44,6 +46,7 @@ export class AuthController {
     return this.authService.signout(id);
   }
 
+  @Post('/login')
   @ApiOperation({ summary: `로그인` })
   @ApiBody({
     type: LoginUserDto,
@@ -53,19 +56,21 @@ export class AuthController {
     description: `로그인 성공`,
     type: AuthorizedUserDto,
   })
+  @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(LocalAuthGuard)
-  @Post('/login')
   async login(
     @Req() req,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<User> {
+  ): Promise<any> {
     const { access_token, ...options } =
       this.authService.getCookieWithJwtAccessToken(req.user);
-    res.setHeader(
-      'Set-Cookie',
-      cookie.serialize('Authentication', access_token, options),
-    );
-    return req.uesr;
+    // res.setHeader(
+    //   'Set-Cookie',
+    //   cookie.serialize('Authentication', access_token, options),
+    // );
+    return {
+      access_token: access_token,
+    };
   }
 
   @UseGuards(JwtAuthGuard)
