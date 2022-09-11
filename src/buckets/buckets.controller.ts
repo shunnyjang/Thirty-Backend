@@ -23,6 +23,7 @@ import { uploadFileOnAwsS3Bucket } from 'src/utils/file-upload';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
   ApiConsumes,
@@ -40,11 +41,29 @@ export class BucketsController {
   constructor(private bucketsService: BucketsService) {}
 
   @ApiOperation({ summary: `새로운 회원 첫 버킷 생성` })
-  @ApiBody({
-    type: CreateNewbieBucketDto,
-  })
-  @ApiCreatedResponse({
-    type: UserTokenDto,
+  @ApiBody({ type: CreateNewbieBucketDto })
+  @ApiCreatedResponse({ type: UserTokenDto })
+  @ApiBadRequestResponse({
+    status: 400,
+    schema: {
+      properties: {
+        statusCode: {
+          type: `number`,
+          example: 400,
+        },
+        message: {
+          type: `string`,
+          examples: [
+            `존재하지 않는 챌린지 입니다.`,
+            `이미 가입한 기록이 있습니다.`,
+          ],
+        },
+        error: {
+          type: `string`,
+          example: `Bad Request`,
+        },
+      },
+    },
   })
   @Post('/add/newbie')
   createNewbieAndBucket(
@@ -67,6 +86,25 @@ export class BucketsController {
     },
   })
   @ApiCreatedResponse({ type: Bucket })
+  @ApiBadRequestResponse({
+    status: 400,
+    schema: {
+      properties: {
+        statusCode: {
+          type: `number`,
+          example: 400,
+        },
+        message: {
+          type: `string`,
+          example: `존재하지 않는 챌린지 입니다.`,
+        },
+        error: {
+          type: `string`,
+          example: `Bad Request`,
+        },
+      },
+    },
+  })
   @UseGuards(JwtAuthGuard)
   @Post('/add/current')
   createExistingUserBucket(
@@ -120,9 +158,7 @@ export class BucketsController {
   @ApiBearerAuth()
   @ApiOperation({ summary: `답변 등록` })
   @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    type: CreateAnswerDto,
-  })
+  @ApiBody({ type: CreateAnswerDto })
   @ApiCreatedResponse({ type: Answer })
   @Post('/:bucket_id')
   @UseInterceptors(FileInterceptor('image'))

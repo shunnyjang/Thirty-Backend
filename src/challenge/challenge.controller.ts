@@ -11,6 +11,7 @@ import { ChallengeService } from './challenge.service';
 import { CreateMissionDto } from './dto/create-mission.dto';
 
 import {
+  ApiBadRequestResponse,
   ApiExcludeEndpoint,
   ApiExtraModels,
   ApiOperation,
@@ -67,6 +68,25 @@ export class ChallengeController {
           },
         },
       ],
+    },
+  })
+  @ApiBadRequestResponse({
+    status: 400,
+    schema: {
+      properties: {
+        statusCode: {
+          type: `number`,
+          example: 400,
+        },
+        message: {
+          type: `string`,
+          example: `존재하지 않는 챌린지 입니다.`,
+        },
+        error: {
+          type: `string`,
+          example: `Bad Request`,
+        },
+      },
     },
   })
   @Get('/:category/:id')
