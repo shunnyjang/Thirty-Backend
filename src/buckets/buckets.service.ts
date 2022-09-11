@@ -2,7 +2,8 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
-import { Answer, Bucket, Challenge, User } from 'src/entities';
+import { ChallengeService } from 'src/challenge/challenge.service';
+import { Answer, Bucket, User } from 'src/entities';
 import { UserTokenDto } from 'src/user/dto/user-token.dto';
 import { UserService } from 'src/user/user.service';
 import { BucketStatus } from './bucket-status.enum';
@@ -19,8 +20,7 @@ export class BucketsService {
     @InjectRepository(Bucket)
     private readonly bucketRepository: EntityRepository<Bucket>,
     private readonly userService: UserService,
-    @InjectRepository(Challenge)
-    private readonly challengeRepository: EntityRepository<Challenge>,
+    private readonly challengeService: ChallengeService,
     @InjectRepository(Answer)
     private readonly answerRepository: EntityRepository<Answer>,
   ) {}
@@ -30,9 +30,7 @@ export class BucketsService {
     if (await this.isSameChallengeBucketWorkedOn(user, challengeId))
       throw new BadRequestException(`이미 진행 중인 챌린지 입니다.`);
 
-    const challenge = await this.challengeRepository.findOneOrFail({
-      id: challengeId,
-    });
+    const challenge = await this.challengeService.getChallengeById(challengeId);
     const bucket = new Bucket(user, challenge);
     await this.bucketRepository.persistAndFlush(bucket);
     return bucket;

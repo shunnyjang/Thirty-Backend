@@ -1,6 +1,6 @@
 import { EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Category, Challenge, Mission } from 'src/entities';
 import { CreateMissionDto } from './dto/create-mission.dto';
 
@@ -30,10 +30,15 @@ export class ChallengeService {
   }
 
   async getChallengeById(challengeId: number): Promise<Challenge> {
-    return this.challengeRepository.findOneOrFail(
-      { id: challengeId },
-      { populate: ['missions'] },
-    );
+    try {
+      const challenge = await this.challengeRepository.findOneOrFail(
+        { id: challengeId },
+        { populate: ['missions'] },
+      );
+      return challenge;
+    } catch (e) {
+      throw new BadRequestException(`존재하지 않는 챌린지 입니다.`);
+    }
   }
 
   async registerChallengeMissions(

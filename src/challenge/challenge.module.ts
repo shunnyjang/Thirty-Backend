@@ -6,6 +6,7 @@ import { ChallengeService } from './challenge.service';
 
 @Module({
   imports: [MikroOrmModule.forFeature([Category, Challenge, Mission])],
+  exports: [ChallengeService],
   controllers: [ChallengeController],
   providers: [ChallengeService],
 })
