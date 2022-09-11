@@ -67,7 +67,7 @@ export class BucketsService {
   }
 
   async getBucketById(bucketId: string): Promise<BucketsDetail> {
-    const bucket = await this.bucketRepository.findOne({ id: bucketId });
+    const bucket = await this.findBucketById(bucketId);
     const answers = await this.answerRepository.find({
       bucket: { id: bucketId },
     });
@@ -82,9 +82,7 @@ export class BucketsService {
     imageFileUrl: string,
     createAnswerDto: CreateAnswerDto,
   ): Promise<Answer> {
-    const bucket = await this.bucketRepository.findOne({
-      id: bucketId,
-    });
+    const bucket = await this.findBucketById(bucketId);
 
     createAnswerDto.bucket = bucket;
     createAnswerDto.image = imageFileUrl;
@@ -110,6 +108,27 @@ export class BucketsService {
     });
   }
 
+  async updateBucketStatus(
+    bucketId: string,
+    status: BucketStatus,
+  ): Promise<Bucket> {
+    const bucket = await this.findBucketById(bucketId);
+    // TODO: 배포 때 활성화
+    // if (!this.isPossibleToChangeBucketStatus(bucket.status))
+    //   throw new BadRequestException(`이미 완료된 챌린지 입니다.`);
+    bucket.status = status;
+    await this.bucketRepository.persistAndFlush(bucket);
+    return bucket;
+  }
+
+  private async findBucketById(id: string) {
+    try {
+      return this.bucketRepository.findOneOrFail(id);
+    } catch (error) {
+      throw new BadRequestException(`존재하지 않는 챌린지 버킷입니다.`);
+    }
+  }
+
   private async isSameChallengeBucketWorkedOn(
     user: User,
     challengeId: number,
@@ -122,5 +141,9 @@ export class BucketsService {
 
     if (bucket.length > 0) return true;
     return false;
+  }
+
+  private isPossibleToChangeBucketStatus(oldStatus: BucketStatus) {
+    if (oldStatus === BucketStatus.COMPLETED) return false;
   }
 }

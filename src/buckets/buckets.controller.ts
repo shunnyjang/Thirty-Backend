@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
   Req,
@@ -27,13 +28,13 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiConsumes,
-  ApiCookieAuth,
   ApiCreatedResponse,
   ApiOperation,
   ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { string } from 'joi';
 
 @ApiTags('Buckets')
 @Controller('buckets')
@@ -72,7 +73,7 @@ export class BucketsController {
     return this.bucketsService.createNewbieAndBucket(createNewbieBucketDto);
   }
 
-  @ApiCookieAuth('Authentication')
+  @ApiBearerAuth('Authentication')
   @ApiOperation({ summary: `기존 회원 버킷 생성` })
   @ApiBody({
     schema: {
@@ -188,5 +189,32 @@ export class BucketsController {
     @Param('date', ParseIntPipe) date: number,
   ): Promise<Answer> {
     return this.bucketsService.getAnswerByBucketAndDate(bucketId, date);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: `챌린지 버킷 상태 업데이트` })
+  @ApiBody({
+    schema: {
+      properties: {
+        status: {
+          type: `string`,
+          enum: Object.values(BucketStatus),
+          example: `ABD`,
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    type: Bucket,
+  })
+  @Patch('/:bucket_id/status')
+  @UseGuards(JwtAuthGuard)
+  async updateBucketStatus(
+    @Req() req,
+    @Param('bucket_id') bucketId: string,
+    @Body('status') status: BucketStatus,
+  ): Promise<Bucket> {
+    return this.bucketsService.updateBucketStatus(bucketId, status);
   }
 }
