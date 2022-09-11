@@ -43,8 +43,10 @@ export class UserService {
     userDataObject.password = await crypt.getHashedValue(
       registerUserDto.password,
     );
-    userDataObject.isSignedUp = true;
-
+    Object.assign(userDataObject, {
+      isSignedUp: true,
+      signup_at: new Date(),
+    });
     wrap(user).assign(userDataObject);
     this.userRepository.flush();
 

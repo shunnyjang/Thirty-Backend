@@ -25,5 +25,6 @@ export class RegisterUserDto {
   })
   nickname: string;
 
-  isSignedUp: boolean;
+  isSignedUp?: boolean;
+  signup_at?: Date;
 }

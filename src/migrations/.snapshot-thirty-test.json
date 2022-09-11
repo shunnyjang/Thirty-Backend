@@ -257,6 +257,16 @@
           "default": "false",
           "mappedType": "boolean"
         },
+        "signup_at": {
+          "name": "signup_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
         "deleted_at": {
           "name": "deleted_at",
           "type": "timestamptz(0)",

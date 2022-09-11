@@ -7,6 +7,7 @@ export class LoginUserDto {
     type: 'string',
   })
   email: string;
+
   @ApiProperty({
     example: `password1`,
     description: `비밀번호`,
