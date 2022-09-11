@@ -247,6 +247,16 @@
           "nullable": true,
           "mappedType": "string"
         },
+        "is_signed_up": {
+          "name": "is_signed_up",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "false",
+          "mappedType": "boolean"
+        },
         "deleted_at": {
           "name": "deleted_at",
           "type": "timestamptz(0)",

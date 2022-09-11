@@ -39,11 +39,15 @@ export class UserService {
 
   async register(registerUserDto: RegisterUserDto): Promise<User> {
     const { user, ...userDataObject } = registerUserDto;
+
     userDataObject.password = await crypt.getHashedValue(
       registerUserDto.password,
     );
+    userDataObject.isSignedUp = true;
+
     wrap(user).assign(userDataObject);
     this.userRepository.flush();
+
     return user;
   }
 
@@ -107,9 +111,5 @@ export class UserService {
 
   private async removeRefreshToken(userId: string) {
     this.userRepository.nativeUpdate({ id: userId }, { refreshToken: null });
-  }
-
-  private async transaction(user: User) {
-    this.userRepository.persist(user);
   }
 }

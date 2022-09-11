@@ -42,6 +42,9 @@ export class User {
   @Property({ nullable: true })
   refreshToken: string;
 
+  @Property({ default: false })
+  isSignedUp: boolean;
+
   @Exclude()
   @Property({
     nullable: true,

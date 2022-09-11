@@ -24,4 +24,6 @@ export class RegisterUserDto {
     type: 'string',
   })
   nickname: string;
+
+  isSignedUp: boolean;
 }
