@@ -31,7 +31,6 @@ export class AuthService {
   }
 
   async signUp(registerUserDto: RegisterUserDto): Promise<User> {
-    const { password, ...info } = registerUserDto;
     return this.userService.register(registerUserDto);
   }
 

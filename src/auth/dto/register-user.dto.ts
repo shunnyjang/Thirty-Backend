@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { User } from 'src/entities';
 
 export class RegisterUserDto {
-  id?: string;
+  user?: User;
 
   @ApiProperty({
     example: `example@thirty.com`,
@@ -16,4 +17,11 @@ export class RegisterUserDto {
     type: 'string',
   })
   password: string;
+
+  @ApiProperty({
+    example: `해리`,
+    description: `닉네임`,
+    type: 'string',
+  })
+  nickname: string;
 }

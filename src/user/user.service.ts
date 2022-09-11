@@ -12,6 +12,7 @@ import { RegisterUserDto } from 'src/auth/dto/register-user.dto';
 import { crypt } from 'src/utils/crypt';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthService } from 'src/auth/auth.service';
+import { wrap } from '@mikro-orm/core';
 
 @Injectable()
 export class UserService {
@@ -37,13 +38,13 @@ export class UserService {
   }
 
   async register(registerUserDto: RegisterUserDto): Promise<User> {
-    const { id, password, email } = registerUserDto;
-    const hashedPassword = await crypt.getHashedValue(password);
-    await this.userRepository.nativeUpdate(
-      { id: id },
-      { email: email, password: hashedPassword },
+    const { user, ...userDataObject } = registerUserDto;
+    userDataObject.password = await crypt.getHashedValue(
+      registerUserDto.password,
     );
-    return this.getById(id);
+    wrap(user).assign(userDataObject);
+    this.userRepository.flush();
+    return user;
   }
 
   async deleteUser(uuid: string): Promise<void> {
@@ -52,24 +53,32 @@ export class UserService {
   }
 
   async getById(id: string): Promise<any> {
-    return this.userRepository.findOne({ id: id });
+    try {
+      return this.userRepository.findOneOrFail({ id: id });
+    } catch (error) {
+      throw new BadRequestException(`존재하지 않는 사용자 입니다.`);
+    }
   }
 
   async getByUuid(uuid: string): Promise<User> {
-    return this.userRepository.findOne({ uuid: uuid });
+    try {
+      return this.userRepository.findOneOrFail({ uuid: uuid });
+    } catch (error) {
+      throw new BadRequestException(`존재하지 않는 사용자 입니다.`);
+    }
   }
 
   async getByEmail(email: string): Promise<User> {
-    return this.userRepository.findOne({ email: email });
+    try {
+      return this.userRepository.findOneOrFail({ email: email });
+    } catch (error) {
+      throw new BadRequestException(`존재하지 않는 사용자 입니다.`);
+    }
   }
 
   async update(user: User, updateUserDto: UpdateUserDto): Promise<User> {
-    await this.userRepository.nativeUpdate({ id: user.id }, updateUserDto);
-
-    // TODO: DB에서 업데이트 된 결과를 받아올 수 있는 방법 찾아서 리팩토링
-    if (updateUserDto.nickname) user.nickname = updateUserDto.nickname;
-    if (updateUserDto.visibility) user.visibility = updateUserDto.visibility;
-
+    wrap(user).assign(updateUserDto);
+    this.userRepository.flush();
     return user;
   }
 
