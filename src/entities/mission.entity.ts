@@ -1,26 +1,21 @@
 import { Entity, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
-import { ApiProperty } from '@nestjs/swagger';
 import { Challenge } from './challenges.entity';
+
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity()
 export class Mission {
-  @ApiProperty({
-    example: 1,
-    description: `unique id`,
-  })
-  @PrimaryKey()
+  @PrimaryKey({ hidden: true })
   id: number;
 
-  @ApiProperty({ type: () => Challenge })
   @ManyToOne({
-    serializer: (value) => value.title,
-    serializedName: 'challengeTitle',
+    hidden: true,
   })
   challenge: Challenge;
 
   @ApiProperty({
     example: 2,
-    description: `미션 수행일`,
+    description: `미션 수행일 (순서)`,
   })
   @Property()
   date: number;

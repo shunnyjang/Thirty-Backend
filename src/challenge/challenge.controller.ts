@@ -6,15 +6,17 @@ import {
   ParseIntPipe,
   Post,
 } from '@nestjs/common';
-import { Category, Challenge } from 'src/entities';
+import { Category, Challenge, Mission } from 'src/entities';
 import { ChallengeService } from './challenge.service';
 import { CreateMissionDto } from './dto/create-mission.dto';
 
 import {
-  ApiCreatedResponse,
+  ApiExcludeEndpoint,
+  ApiExtraModels,
   ApiOperation,
   ApiResponse,
   ApiTags,
+  getSchemaPath,
 } from '@nestjs/swagger';
 
 @ApiTags('Challenges')
@@ -22,11 +24,25 @@ import {
 export class ChallengeController {
   constructor(private challengeService: ChallengeService) {}
 
+  @ApiOperation({ summary: `카테고리 조회` })
+  @ApiResponse({
+    status: 200,
+    description: `Return Categories`,
+    type: Category,
+    isArray: true,
+  })
   @Get('')
   getAllCategories(): Promise<Category[]> {
     return this.challengeService.getAllCategories();
   }
 
+  @ApiOperation({ summary: `카테고리 내 챌린지 목록 조회` })
+  @ApiResponse({
+    status: 200,
+    description: `Return Challenges Of Category`,
+    type: Challenge,
+    isArray: true,
+  })
   @Get('/:category')
   getChallengeByName(
     @Param('category') categoryName: string,
@@ -35,10 +51,23 @@ export class ChallengeController {
   }
 
   @ApiOperation({ summary: `챌린지 상세 조회` })
+  @ApiExtraModels(Mission)
   @ApiResponse({
     status: 200,
-    description: `Return Challenge`,
-    type: Challenge,
+    description: `Return Challenge Detail`,
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(Challenge) },
+        {
+          properties: {
+            missions: {
+              type: 'array',
+              items: { $ref: getSchemaPath(Mission) },
+            },
+          },
+        },
+      ],
+    },
   })
   @Get('/:category/:id')
   getQuestionsByChallengeId(
@@ -47,11 +76,7 @@ export class ChallengeController {
     return this.challengeService.getChallengeById(challengeId);
   }
 
-  @ApiOperation({ summary: `챌린지 내 미션 등록` })
-  @ApiCreatedResponse({
-    description: `Return Challenge`,
-    type: Challenge,
-  })
+  @ApiExcludeEndpoint()
   @Post('/:category/:id')
   registerChallengeMissions(
     @Param('id', ParseIntPipe) challengeId: number,
