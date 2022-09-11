@@ -45,6 +45,12 @@ export class Challenge extends BaseEntity {
   })
   author: User;
 
+  @ApiProperty({
+    example: `https://thirty-test-s3.s3.ap-northeast-2.amazonaws.com/test/166263694331248276168.jpeg`,
+    type: `string`,
+    description: `thumbnail image url`,
+    nullable: true,
+  })
   @Property({ nullable: true })
   thumbnail: string;
 
