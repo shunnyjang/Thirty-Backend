@@ -45,6 +45,9 @@ export class Challenge extends BaseEntity {
   })
   author: User;
 
+  @Property({ nullable: true })
+  thumbnail: string;
+
   @ApiProperty({
     type: () => Mission,
   })

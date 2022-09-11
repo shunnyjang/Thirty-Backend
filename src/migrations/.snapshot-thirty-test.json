@@ -370,6 +370,15 @@
           "primary": false,
           "nullable": true,
           "mappedType": "string"
+        },
+        "thumbnail": {
+          "name": "thumbnail",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "string"
         }
       },
       "name": "challenge",
