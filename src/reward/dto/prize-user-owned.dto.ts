@@ -1,12 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class PrizeUserOwnedDto {
-  @ApiProperty({
-    type: `number`,
-    example: 2,
-    description: `리워드 번호`,
-  })
   id?: number;
+
+  @ApiProperty({
+    type: `string`,
+    example: `CH01`,
+    description: `prize own unique code`,
+  })
+  prize_code?: string;
 
   @ApiProperty({
     type: `string`,

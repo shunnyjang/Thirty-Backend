@@ -14,7 +14,7 @@ export class RewardService {
     private readonly prizeRepository: EntityRepository<Prize>,
   ) {}
 
-  async getUserRewardsList(user: User): Promise<any> {
+  async getUserRewardsList(user: User): Promise<PrizeUserOwnedDto[]> {
     const allPrizeList: Prize[] = await this.getAllPrizeList();
     const rewardsListUserHave: Reward[] = await this.getRewardListUserHave(
       user,
@@ -23,7 +23,10 @@ export class RewardService {
   }
 
   private async getAllPrizeList() {
-    return this.prizeRepository.find({}, { orderBy: { id: QueryOrder.ASC } });
+    return this.prizeRepository.find(
+      {},
+      { orderBy: { prize_code: QueryOrder.ASC } },
+    );
   }
 
   private async getRewardListUserHave(user: User) {
@@ -50,7 +53,10 @@ export class RewardService {
         isOwned: false,
       };
       const prizeWithUserOwnedData: PrizeUserOwnedDto = {};
-      if (rewardIdx < rewards.length && prize.id === reward.prize_id) {
+      if (
+        rewardIdx < rewards.length &&
+        prize.prize_code === reward.prize_code
+      ) {
         rewardData.created_at = reward.created_at;
         rewardData.isOwned = true;
         rewardIdx++;
