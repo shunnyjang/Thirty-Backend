@@ -8,6 +8,7 @@ import {
   Category,
   Challenge,
   Mission,
+  Notice,
   Prize,
   Reward,
   Stamp,
@@ -34,6 +35,7 @@ export const config: Options = {
     Stamp,
     Prize,
     Reward,
+    Notice,
   ],
   debug: true,
 

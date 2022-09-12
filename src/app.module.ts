@@ -13,6 +13,8 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { CaslModule } from './casl/casl.module';
 import { RewardModule } from './reward/reward.module';
+import { NoticeService } from './notice/notice.service';
+import { NoticeModule } from './notice/notice.module';
 
 @Module({
   imports: [
@@ -27,7 +29,9 @@ import { RewardModule } from './reward/reward.module';
     UserModule,
     CaslModule,
     RewardModule,
+    NoticeModule,
   ],
+  providers: [NoticeService],
 })
 export class AppModule implements NestModule, OnModuleInit {
   constructor(private readonly orm: MikroORM) {}
