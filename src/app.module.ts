@@ -31,7 +31,6 @@ import { NoticeModule } from './notice/notice.module';
     RewardModule,
     NoticeModule,
   ],
-  providers: [NoticeService],
 })
 export class AppModule implements NestModule, OnModuleInit {
   constructor(private readonly orm: MikroORM) {}
