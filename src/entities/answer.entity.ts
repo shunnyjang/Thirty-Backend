@@ -55,4 +55,11 @@ export class Answer extends BaseEntity {
   })
   @Property({ nullable: false })
   stamp: number;
+
+  @ApiProperty({
+    example: `챌린지를 시작해보자! "시작이 반이다"`,
+    type: `string`,
+    description: `미션 타이틀`,
+  })
+  mission: string;
 }

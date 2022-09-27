@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { EntityRepository } from '@mikro-orm/postgresql';
+import { EntityManager, EntityRepository } from '@mikro-orm/postgresql';
 
 import { AuthService } from 'src/auth/auth.service';
 import { ChallengeService } from 'src/challenge/challenge.service';
@@ -20,7 +20,7 @@ export class BucketsService {
     private readonly authService: AuthService,
     private readonly userService: UserService,
     private readonly challengeService: ChallengeService,
-    private readonly rewardService: RewardService,
+    private readonly em: EntityManager,
     @InjectRepository(Bucket)
     private readonly bucketRepository: EntityRepository<Bucket>,
     @InjectRepository(Answer)
@@ -71,11 +71,20 @@ export class BucketsService {
     });
   }
 
-  async getBucketAndAnswersById(bucketId: string): Promise<BucketsDetail> {
+  async getBucketAndAnswersById(bucketId: string): Promise<any> {
     const bucket: Bucket = await this.getBucketById(bucketId);
-    const answers: Answer[] = await this.answerRepository.find({
-      bucket: { id: bucketId },
-    });
+    const answers = await this.em.execute(`
+      select a.*
+           , m.detail as mission
+       from  answer a
+       left  join bucket b
+         on  b.id = a.bucket_id
+       left  join challenge c
+         on  c.id = b.challenge_id
+       left  join mission m
+         on  m.challenge_id = c.id
+        and  m.date = a.date
+    `);
     return {
       bucket: bucket,
       answers: answers,
