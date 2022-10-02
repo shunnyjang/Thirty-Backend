@@ -7,6 +7,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export class Relation {
   @PrimaryKey()
   @Property({
+    hidden: true,
     nullable: false,
   })
   userId: string;
