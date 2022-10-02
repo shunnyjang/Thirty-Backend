@@ -100,7 +100,9 @@ export class UserService {
     if (user) {
       return user;
     }
-    throw new BadRequestException(`존재하지 않는 사용자 입니다.`);
+    throw new BadRequestException(
+      `존재하지 않는 아이디 혹은 비밀번호가 맞지 않습니다.`,
+    );
   }
 
   async update(user: User, updateUserDto: UpdateUserDto): Promise<User> {
