@@ -21,17 +21,6 @@ export class CommunityController {
 
   @ApiOperation({ summary: `전체 커뮤니티 리스트 조회` })
   @ApiOkResponse({
-    type: CommunityResponse,
-    isArray: true,
-  })
-  @Get('/all')
-  @UseGuards(JwtAuthGuard)
-  async getAllCommunityList(@Req() req): Promise<CommunityResponse[]> {
-    return this.communityService.getAllCommunityList(req.user);
-  }
-
-  @ApiOperation({ summary: `친구 커뮤니티 리스트 조회` })
-  @ApiOkResponse({
     schema: {
       items: {
         allOf: [
@@ -48,6 +37,17 @@ export class CommunityController {
         ],
       },
     },
+    isArray: true,
+  })
+  @Get('/all')
+  @UseGuards(JwtAuthGuard)
+  async getAllCommunityList(@Req() req): Promise<CommunityResponse[]> {
+    return this.communityService.getAllCommunityList(req.user);
+  }
+
+  @ApiOperation({ summary: `친구 커뮤니티 리스트 조회` })
+  @ApiOkResponse({
+    type: CommunityResponse,
     isArray: true,
   })
   @Get('/Friend')
