@@ -139,10 +139,18 @@ export class BucketsService {
     bucketId: string,
     date: number,
   ): Promise<Answer> {
-    return this.answerRepository.findOne({
-      bucket: { id: bucketId },
-      date: date,
-    });
+    return this.em.execute(`
+      select a.*
+           , m.detail as mission
+       from  answer a
+       left  join bucket b
+         on  b.id = a.bucket_id
+       left  join challenge c
+         on  c.id = b.challenge_id
+       left  join mission m
+         on  m.challenge_id = c.id
+        and  m.date = a.date
+    `);
   }
 
   async updateBucketStatus(
