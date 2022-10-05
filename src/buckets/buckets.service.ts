@@ -148,8 +148,9 @@ export class BucketsService {
     //   const rewards = await this.rewardService.checkAndGetReward(user);
     //   Object.assign(answer, { rewards: rewards });
     // }
-
-    return answer;
+    return {
+      bucketStatus: bucket.status
+    };
   }
 
   async getAnswerByBucketAndDate(
