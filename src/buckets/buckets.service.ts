@@ -99,7 +99,7 @@ export class BucketsService {
       and a."date" = m."date"
     where 1=1
       and b.id = '${bucketId}'
-    order by a."date";
+    order by m."date";
     `);
     return {
       bucket: bucket,
