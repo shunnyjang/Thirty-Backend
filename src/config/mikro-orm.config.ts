@@ -14,6 +14,9 @@ import {
   Reward,
   Stamp,
   User,
+  Notification,
+  BucketTheme,
+  ExportLog,
 } from '../entities';
 
 const logger = new Logger('MikroORM');
@@ -37,7 +40,10 @@ export const config: Options = {
     Prize,
     Reward,
     Notice,
-    Relation
+    Relation,
+    Notification,
+    BucketTheme,
+    ExportLog,
   ],
   debug: true,
 

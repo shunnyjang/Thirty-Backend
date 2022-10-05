@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
-import { RelationService } from './relation.service';
-import { RelationController } from './relation.controller';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Relation } from 'src/entities';
+import { RelationService } from './relation.service';
+import { RelationController } from './relation.controller';
+import { NotificationModule } from 'src/notification/notification.module';
 
 @Module({
-  imports: [MikroOrmModule.forFeature([Relation])],
+  imports: [NotificationModule, MikroOrmModule.forFeature([Relation])],
+  exports: [RelationService],
   providers: [RelationService],
   controllers: [RelationController],
 })

@@ -10,3 +10,6 @@ export * from './prize.entity';
 export * from './reward.entity';
 export * from './notice.entity';
 export * from './relation.entity';
+export * from './notification.entity';
+export * from './BucketTheme.entity';
+export * from './ExportLog.entity';

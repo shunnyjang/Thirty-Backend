@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { Answer, Bucket, Challenge, User } from 'src/entities';
 import { BucketsController } from './buckets.controller';
 import { BucketsService } from './buckets.service';
@@ -12,13 +12,14 @@ import { RewardModule } from 'src/reward/reward.module';
 @Module({
   imports: [
     MikroOrmModule.forFeature([Bucket, User, Challenge, Answer]),
-    UserModule,
+    forwardRef(() => UserModule),
     BucketsModule,
     AuthModule,
     CaslModule,
     ChallengeModule,
-    RewardModule
+    RewardModule,
   ],
+  exports: [BucketsService],
   providers: [BucketsService],
   controllers: [BucketsController],
 })

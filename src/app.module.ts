@@ -13,9 +13,11 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { CaslModule } from './casl/casl.module';
 import { RewardModule } from './reward/reward.module';
-import { NoticeService } from './notice/notice.service';
 import { NoticeModule } from './notice/notice.module';
 import { RelationModule } from './relation/relation.module';
+import { NotificationModule } from './notification/notification.module';
+import { CommunityModule } from './community/community.module';
+import { ThemeModule } from './theme/theme.module';
 
 @Module({
   imports: [
@@ -32,6 +34,9 @@ import { RelationModule } from './relation/relation.module';
     RewardModule,
     NoticeModule,
     RelationModule,
+    NotificationModule,
+    CommunityModule,
+    ThemeModule,
   ],
 })
 export class AppModule implements NestModule, OnModuleInit {

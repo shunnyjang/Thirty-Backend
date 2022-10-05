@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityManager, EntityRepository } from '@mikro-orm/postgresql';
 
@@ -7,17 +13,17 @@ import { ChallengeService } from 'src/challenge/challenge.service';
 import { UserService } from 'src/user/user.service';
 import { Answer, Bucket, Challenge, User } from 'src/entities';
 import { UserTokenDto } from 'src/user/dto/user-token.dto';
-import { BucketsDetail } from './dto/buckets-detail.dto';
 import { CreateAnswerDto } from './dto/create-answer.dto';
 import { CreateBucketDto } from './dto/create-bucket.dto';
 import { CreateNewbieBucketDto } from './dto/create-newbie-buckets.dto';
 import { BucketStatus } from './bucket-status.enum';
-import { RewardService } from 'src/reward/reward.service';
+import { UpdateAnswerDto } from './dto/update-answer.dto';
 
 @Injectable()
 export class BucketsService {
   constructor(
     private readonly authService: AuthService,
+    @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly challengeService: ChallengeService,
     private readonly em: EntityManager,
@@ -74,16 +80,26 @@ export class BucketsService {
   async getBucketAndAnswersById(bucketId: string): Promise<any> {
     const bucket: Bucket = await this.getBucketById(bucketId);
     const answers = await this.em.execute(`
-      select a.*
-           , m.detail as mission
-       from  answer a
-       left  join bucket b
-         on  b.id = a.bucket_id
-       left  join challenge c
-         on  c.id = b.challenge_id
-       left  join mission m
-         on  m.challenge_id = c.id
-        and  m.date = a.date
+    select m."date"
+         , m.detail as mission
+         , a.id as answerId
+         , a.music
+         , a.detail
+         , a.image
+         , a.stamp
+         , a.created_at
+         , a.updated_at
+     from mission m
+     left join challenge c
+       on c.id = m.challenge_id
+     left join bucket b
+       on b.challenge_id = c.id 
+     left join answer a 
+       on a.bucket_id = b.id
+      and a."date" = m."date"
+    where 1=1
+      and b.id = '${bucketId}'
+    order by a."date";
     `);
     return {
       bucket: bucket,
@@ -91,29 +107,30 @@ export class BucketsService {
     };
   }
 
+  async getCompletedChallengeBucketCount(user: User): Promise<number> {
+    return this.bucketRepository.count({
+      user: user,
+    });
+  }
+
   async createAnswer(
     user: User,
     bucketId: string,
     createAnswerDto: CreateAnswerDto,
-    imageFileUrl?: string,
   ): Promise<any> {
     const bucket: Bucket = await this.getBucketById(bucketId);
+    this.checkPermission(bucket, user);
     if (!bucket.isBucketWorkedOn()) {
       throw new BadRequestException(`종료된 챌린지 입니다.`);
     }
 
-    Object.assign(createAnswerDto, {
-      bucket: bucket,
-      image: imageFileUrl,
-    });
     let answer: Answer;
     try {
+      createAnswerDto.bucket = bucket;
       answer = this.answerRepository.create(createAnswerDto);
       await this.answerRepository.persistAndFlush(answer);
     } catch (error) {
       // duplicate unique key
-      console.log("error");
-      console.log(error);
       if (error.code == 23505)
         throw new BadRequestException(`이미 진행한 챌린지 날짜 입니다.`);
     }
@@ -153,6 +170,25 @@ export class BucketsService {
     `);
   }
 
+  async updateAnswer(
+    user: User,
+    bucketId: string,
+    date: number,
+    updateAnswerDto: UpdateAnswerDto,
+  ) {
+    const bucket = await this.getBucketById(bucketId);
+    this.checkPermission(bucket, user);
+
+    this.answerRepository.nativeUpdate(
+      {
+        bucket: bucket,
+        date: date,
+      },
+      updateAnswerDto,
+    );
+    this.answerRepository.flush();
+  }
+
   async updateBucketStatus(
     bucketId: string,
     status: BucketStatus,
@@ -167,7 +203,7 @@ export class BucketsService {
     return bucket;
   }
 
-  private async getBucketById(id: string): Promise<Bucket> {
+  async getBucketById(id: string): Promise<Bucket> {
     const bucket = await this.bucketRepository.findOne(id);
     if (!bucket) {
       throw new BadRequestException(`존재하지 않는 챌린지 버킷 입니다.`);
@@ -189,5 +225,11 @@ export class BucketsService {
       return true;
     }
     return false;
+  }
+
+  checkPermission(bucket: Bucket, user: User): void {
+    if (bucket.user.id !== user.id) {
+      throw new ForbiddenException(`챌린지 버킷 주인만 등록, 수정 가능합니다.`);
+    }
   }
 }

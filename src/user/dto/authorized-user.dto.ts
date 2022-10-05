@@ -57,4 +57,23 @@ export class AuthorizedUserDto {
     description: `챌린지 공개 여부`,
   })
   visibility: UserVisiblity;
+
+  @ApiProperty({
+    example: `2`,
+    description: `받은 리워드 개수`,
+    type: `number`,
+  })
+  rewardCount: number;
+  @ApiProperty({
+    example: `4`,
+    description: `완료한 챌린지 개수`,
+    type: `number`,
+  })
+  completedChallengeCount: number;
+  @ApiProperty({
+    example: `6`,
+    description: `친구 수`,
+    type: `number`,
+  })
+  relationCount: number;
 }

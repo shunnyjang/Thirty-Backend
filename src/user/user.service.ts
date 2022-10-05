@@ -13,6 +13,9 @@ import { crypt } from 'src/utils/crypt';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthService } from 'src/auth/auth.service';
 import { wrap } from '@mikro-orm/core';
+import { RewardService } from 'src/reward/reward.service';
+import { BucketsService } from 'src/buckets/buckets.service';
+import { RelationService } from 'src/relation/relation.service';
 
 @Injectable()
 export class UserService {
@@ -21,6 +24,10 @@ export class UserService {
     private readonly userRepository: EntityRepository<User>,
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
+    private readonly rewardService: RewardService,
+    @Inject(forwardRef(() => BucketsService))
+    private readonly bucketService: BucketsService,
+    private readonly relationService: RelationService,
   ) {}
 
   async createUser(uuid: string): Promise<User> {
@@ -53,30 +60,49 @@ export class UserService {
     return user;
   }
 
+  async getUserProfileById(id: string): Promise<any> {
+    const user = await this.getById(id);
+    const rewardCount = await this.rewardService.getRewardCountByUserId(id);
+    const completedChallengeCount =
+      await this.bucketService.getCompletedChallengeBucketCount(user);
+    const relationCount = await this.relationService.getRelationCount(id);
+    return {
+      user: user,
+      rewardCount: rewardCount,
+      completedChallengeCount: completedChallengeCount,
+      relationCount: relationCount,
+    };
+  }
+
   async deleteUser(uuid: string): Promise<void> {
     const result = await this.userRepository.nativeDelete({ uuid: uuid });
     console.log(result);
   }
 
-  async getById(id: string): Promise<any> {
-      const user = await this.userRepository.findOneOrFail({ id: id });
-      if (!user)
-        throw new BadRequestException(`존재하지 않는 사용자 입니다.`);
+  async getById(id: string): Promise<User> {
+    const user = await this.userRepository.findOne({ id: id });
+    if (user) {
       return user;
+    }
+    throw new BadRequestException(`존재하지 않는 사용자 입니다.`);
   }
 
   async getByUuid(uuid: string): Promise<User> {
-      const user = await this.userRepository.findOneOrFail({ uuid: uuid });
-      if (!user)
-        throw new BadRequestException(`존재하지 않는 사용자 입니다.`);
+    const user = await this.userRepository.findOne({ uuid: uuid });
+    if (user) {
       return user;
+    }
+    throw new BadRequestException(`존재하지 않는 사용자 입니다.`);
   }
 
   async getByEmail(email: string): Promise<User> {
-      const user = await this.userRepository.findOneOrFail({ email: email });
-      if (!user)
-        throw new BadRequestException(`존재하지 않는 사용자 입니다.`);
+    const user = await this.userRepository.findOne({ email: email });
+    if (user) {
       return user;
+    }
+    throw new BadRequestException(
+      `존재하지 않는 아이디 혹은 비밀번호가 맞지 않습니다.`,
+    );
   }
 
   async update(user: User, updateUserDto: UpdateUserDto): Promise<User> {

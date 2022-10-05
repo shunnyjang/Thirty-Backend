@@ -11,9 +11,12 @@ import {
   ClassSerializerInterceptor,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBody,
   ApiCookieAuth,
+  ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -29,11 +32,6 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Delete('/:uuid')
-  deleteUser(@Param('uuid') uuid: string): Promise<void> {
-    return this.userService.deleteUser(uuid);
-  }
-
   @Get('/profile')
   @ApiOperation({ summary: `프로필 조회` })
   @ApiResponse({
@@ -42,8 +40,8 @@ export class UserController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(JwtAuthGuard)
-  async getUserProfile(@Req() req): Promise<User> {
-    return this.userService.getById(req.user.id);
+  async getUserProfile(@Req() req): Promise<any> {
+    return this.userService.getUserProfileById(req.user.id);
   }
 
   @Patch('/profile')
@@ -70,5 +68,25 @@ export class UserController {
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<User> {
     return this.userService.update(req.user, updateUserDto);
+  }
+
+  @ApiOperation({ summary: `사용자 검색` })
+  @ApiParam({
+    name: `user_id`,
+    type: `string`,
+    example: `adfa8b368bcd91d3d830`,
+    description: `user id`,
+    required: true,
+  })
+  @ApiOkResponse({ type: User })
+  @ApiBadRequestResponse({})
+  @Get('/:user_id')
+  async findUser(@Param('user_id') userId: string) {
+    return this.userService.getById(userId);
+  }
+
+  @Delete('/:uuid')
+  deleteUser(@Param('uuid') uuid: string): Promise<void> {
+    return this.userService.deleteUser(uuid);
   }
 }

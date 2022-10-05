@@ -29,11 +29,14 @@ import {
   ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { UpdateAnswerDto } from './dto/update-answer.dto';
 
 @ApiTags('Buckets')
 @Controller('buckets')
@@ -160,6 +163,15 @@ export class BucketsController {
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreateAnswerDto })
   @ApiCreatedResponse({ type: Answer })
+  @ApiForbiddenResponse({
+    schema: {
+      example: {
+        statusCode: 403,
+        message: `챌린지 버킷 주인만 등록, 수정 가능합니다.`,
+        error: `Forbidden`,
+      },
+    },
+  })
   @Post('/:bucket_id')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('image'))
@@ -170,11 +182,13 @@ export class BucketsController {
     @UploadedFile() imageFile?,
   ): Promise<any> {
     const uploadedImageUrl = await uploadFileOnAwsS3Bucket(imageFile, 'test');
+    if (uploadedImageUrl) {
+      createAnswerDto.image = uploadedImageUrl;
+    }
     return this.bucketsService.createAnswer(
       req.user,
       bucketId,
       createAnswerDto,
-      uploadedImageUrl,
     );
   }
 
@@ -191,6 +205,42 @@ export class BucketsController {
     @Param('date', ParseIntPipe) date: number,
   ): Promise<Answer> {
     return this.bucketsService.getAnswerByBucketAndDate(bucketId, date);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: `답변 수정` })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: UpdateAnswerDto })
+  @ApiOkResponse()
+  @ApiForbiddenResponse({
+    schema: {
+      example: {
+        statusCode: 403,
+        message: `챌린지 버킷 주인만 등록, 수정 가능합니다.`,
+        error: `Forbidden`,
+      },
+    },
+  })
+  @Patch('/:bucket_id/date/:date')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('image'))
+  async updateAnswer(
+    @Req() req,
+    @Param('bucket_id') bucketId: string,
+    @Param('date', ParseIntPipe) date: number,
+    @Body() updateAnswerDto: UpdateAnswerDto,
+    @UploadedFile() imageFile?,
+  ): Promise<any> {
+    const uploadedImageUrl = await uploadFileOnAwsS3Bucket(imageFile, 'test');
+    if (uploadedImageUrl) {
+      updateAnswerDto.image = uploadedImageUrl;
+    }
+    return this.bucketsService.updateAnswer(
+      req.user,
+      bucketId,
+      date,
+      updateAnswerDto,
+    );
   }
 
   @ApiBearerAuth()

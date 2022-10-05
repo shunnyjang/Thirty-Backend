@@ -56,7 +56,11 @@ export class AuthController {
   @ApiResponse({
     status: 201,
     description: `로그인 성공`,
-    type: AuthorizedUserDto,
+    schema: {
+      example: {
+        access_token: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiYWJjZGVmdSIsImlkIjoiY2ZmNzQwN2E1MDQxYmU0MjE2MzciLCJpYXQiOjE2NjQ2MDg0NjMsImV4cCI6MTY2NTIxMzI2M30.emZbrLhdBwYROlxuZX13gc0gWc0Li1mM-22dV8ig3mc`,
+      },
+    },
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(LocalAuthGuard)

@@ -3,7 +3,7 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityManager, EntityRepository } from '@mikro-orm/postgresql';
 import { Injectable } from '@nestjs/common';
 import { Prize, Reward, User } from 'src/entities';
-import { RelationStatus } from 'src/entities/relation.entity';
+import { RelationStatus } from 'src/relation/relation-stautus.enum';
 import { PrizeUserOwnedDto } from './dto/prize-user-owned.dto';
 
 @Injectable()
@@ -22,6 +22,12 @@ export class RewardService {
       user,
     );
     return this.getPrizeObjectWithUserOwned(allPrizeList, rewardsListUserHave);
+  }
+
+  async getRewardCountByUserId(userId: string): Promise<number> {
+    return this.rewardRepository.count({
+      user_id: userId,
+    });
   }
 
   async checkAndGetReward(user: User) {
