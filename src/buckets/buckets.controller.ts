@@ -158,11 +158,23 @@ export class BucketsController {
     return this.bucketsService.getBucketAndAnswersById(bucketId);
   }
 
+  @Post('/:bucket_id')
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: `답변 등록` })
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreateAnswerDto })
-  @ApiCreatedResponse({ type: Answer })
+  @ApiCreatedResponse({
+    schema: {
+      properties: {
+        bucketStatus: {
+          type: `string`,
+          enum: Object.values(BucketStatus),
+          description: `WRK: 진행중, CMP: 완료, ABD: 중단`
+        }
+      }
+    }
+  })
   @ApiForbiddenResponse({
     schema: {
       example: {
@@ -172,8 +184,6 @@ export class BucketsController {
       },
     },
   })
-  @Post('/:bucket_id')
-  @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('image'))
   async createAnswer(
     @Req() req,

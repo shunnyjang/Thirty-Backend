@@ -1,6 +1,6 @@
 import { QueryOrder } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { EntityRepository } from '@mikro-orm/postgresql';
+import { EntityManager, EntityRepository } from '@mikro-orm/postgresql';
 import {
   BadRequestException,
   ForbiddenException,
@@ -24,17 +24,13 @@ export class NotificationService {
     private readonly notificationRepository: EntityRepository<Notification>,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
+    private readonly em: EntityManager
   ) {}
 
   async createNotification(
-    createNotificationDto: CreateNotificationDto<string>,
+    createNotificationDto: CreateNotificationDto,
   ): Promise<Notification> {
-    const { user, relatedUser, ...notificationInfo } = createNotificationDto;
-    const notification = new Notification({
-      user: await this.userService.getById(user),
-      relatedUser: await this.userService.getById(relatedUser),
-      ...notificationInfo,
-    });
+    const notification = new Notification(createNotificationDto);
     this.notificationRepository.persistAndFlush(notification);
     return notification;
   }
@@ -42,7 +38,8 @@ export class NotificationService {
   async getNotificationList(user: User): Promise<Notification[]> {
     return this.notificationRepository.find(
       { userId: user.id },
-      { orderBy: { created_at: QueryOrder.ASC } },
+      { orderBy: { created_at: QueryOrder.ASC },
+     },
     );
   }
 
@@ -61,10 +58,7 @@ export class NotificationService {
       throw new BadRequestException(`존재하지 않는 친구신청 입니다.`);
     }
 
-    notification.setNotificationMessage(
-      type,
-      (await this.userService.getById(friendId)).nickname,
-    );
+    notification.setNotificationMessage(type);
     notification.type = type;
     await this.notificationRepository.persistAndFlush(notification);
   }
@@ -96,8 +90,8 @@ export class NotificationService {
       );
       // Send Relation_RSVP_Confirmed to Friend Notification
       await this.createNotification({
-        user: friendId,
-        relatedUser: userId,
+        userId: friendId,
+        relatedUserId: userId,
         type: NotificationTypeCode.RELATION_CONFIRMED,
       });
     } else {

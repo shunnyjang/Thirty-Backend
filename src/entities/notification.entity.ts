@@ -1,4 +1,4 @@
-import { Entity, Property } from '@mikro-orm/core';
+import { Entity, ManyToOne, Property } from '@mikro-orm/core';
 import { ApiProperty } from '@nestjs/swagger';
 import { CreateNotificationDto } from 'src/notification/dto/create-notification.dto';
 import {
@@ -25,6 +25,20 @@ export class Notification extends BaseEntity {
   })
   @Property({ nullable: true })
   relatedUserId: string;
+
+  @ApiProperty({
+    example: `해리`,
+    description: `user nickname`,
+    type: 'string',
+  })
+  @ManyToOne({
+    entity: () => User,
+    joinColumn: `related_user_id`,
+    referenceColumnName: `id`,
+    eager: true,
+    serializer: (value) => value.nickname,
+  })
+  relatedUserNickname: User;
 
   @ApiProperty({
     type: `string`,
@@ -55,16 +69,16 @@ export class Notification extends BaseEntity {
   @Property({ default: false })
   is_read: boolean;
 
-  constructor(createNotificationDto: CreateNotificationDto<User>) {
+  constructor(createNotificationDto: CreateNotificationDto) {
     super();
-    const { user, type, relatedUser, sourceName, sourceId } =
+    const { userId, type, relatedUserId, sourceName, sourceId } =
       createNotificationDto;
-    this.userId = user.id;
+    this.userId = userId;
     this.type = type;
-    this.message = this.getNotificationMessage(type, relatedUser.nickname);
+    this.message = this.getNotificationMessage(type);
 
-    if (relatedUser) {
-      this.relatedUserId = relatedUser.id;
+    if (relatedUserId) {
+      this.relatedUserId = relatedUserId;
     }
     if (sourceName && sourceId) {
       this.relatedSourceName = sourceName;
@@ -74,28 +88,25 @@ export class Notification extends BaseEntity {
 
   setNotificationMessage(
     notiType: NotificationType,
-    relatedUserNickname: string,
     challengeName?: string,
   ) {
     this.message = this.getNotificationMessage(
       notiType,
-      relatedUserNickname,
       challengeName,
     );
   }
 
   private getNotificationMessage(
     notiType: NotificationType,
-    relatedUserNickname: string,
     relatedUserChallangeName?: string,
   ) {
     return {
-      RR0: `${relatedUserNickname}님이 친구 신청을 했어요.`,
-      RR1: `${relatedUserNickname}님의 친구 신청을 수락했어요.`,
-      RR2: `${relatedUserNickname}님의 친구 신청을 거절했어요.`,
-      RC0: `${relatedUserNickname}님이 회원님의 친구 신청을 수락했어요.`,
-      BC0: `${relatedUserNickname}님이 '${relatedUserChallangeName}' 챌린지를 성공했어요!`,
-      BA0: `${relatedUserNickname}님이 '${relatedUserChallangeName}' 답변을 작성했어요.`,
+      RR0: `님이 친구 신청을 했어요.`,
+      RR1: `님의 친구 신청을 수락했어요.`,
+      RR2: `님의 친구 신청을 거절했어요.`,
+      RC0: `님이 회원님의 친구 신청을 수락했어요.`,
+      BC0: `님이 '${relatedUserChallangeName}' 챌린지를 성공했어요!`,
+      BA0: `님이 '${relatedUserChallangeName}' 답변을 작성했어요.`,
     }[notiType];
   }
 }
