@@ -26,10 +26,17 @@ export class Notification extends BaseEntity {
   @Property({ nullable: true })
   relatedUserId: string;
 
+  @ApiProperty({
+    example: `해리`,
+    description: `user nickname`,
+    type: 'string',
+  })
   @ManyToOne({
     entity: () => User,
-    joinColumns: [`relatedUserId`],
-    referenceColumnNames: [`id`],
+    joinColumn: `related_user_id`,
+    referenceColumnName: `id`,
+    eager: true,
+    serializer: (value) => value.nickname,
   })
   relatedUserNickname: User;
 

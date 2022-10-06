@@ -54,9 +54,9 @@ export class RelationService {
 
     // Send Notification To Future Friend
     this.notificationService.createNotification({
-      user: friendId,
+      userId: friendId,
       type: NotificationTypeCode.RELATION_RSVP,
-      relatedUser: userId,
+      relatedUserId: userId,
     });
 
     return userOwnedRelation;
