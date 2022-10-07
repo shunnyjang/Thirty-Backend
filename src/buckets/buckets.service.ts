@@ -25,6 +25,7 @@ export class BucketsService {
     private readonly authService: AuthService,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
+    @Inject(forwardRef(() => ChallengeService))
     private readonly challengeService: ChallengeService,
     private readonly em: EntityManager,
     @InjectRepository(Bucket)

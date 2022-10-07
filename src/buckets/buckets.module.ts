@@ -16,7 +16,7 @@ import { RewardModule } from 'src/reward/reward.module';
     BucketsModule,
     AuthModule,
     CaslModule,
-    ChallengeModule,
+    forwardRef(() => ChallengeModule),
     RewardModule,
   ],
   exports: [BucketsService],
