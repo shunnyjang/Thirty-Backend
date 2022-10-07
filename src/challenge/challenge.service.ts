@@ -1,7 +1,8 @@
 import { EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { Category, Challenge, Mission, User } from 'src/entities';
+import { BadRequestException, forwardRef, Inject, Injectable } from '@nestjs/common';
+import { BucketsService } from 'src/buckets/buckets.service';
+import { Bucket, Category, Challenge, Mission, User } from 'src/entities';
 import { CreateMissionDto } from './dto/create-mission.dto';
 import { CreateChallengeDto, CreateOwnChallengeDto } from './dto/create-own-challenge.dto';
 
@@ -12,8 +13,8 @@ export class ChallengeService {
     private readonly categoryRepository: EntityRepository<Category>,
     @InjectRepository(Challenge)
     private readonly challengeRepository: EntityRepository<Challenge>,
-    @InjectRepository(Mission)
-    private readonly missionRepository: EntityRepository<Mission>,
+    @Inject(forwardRef(() => BucketsService))
+    private readonly bucketsService: BucketsService,
   ) {}
 
   async getAllCategories(): Promise<Category[]> {
@@ -22,28 +23,13 @@ export class ChallengeService {
 
   async getChellengesByCategoryName(
     categoryName: string,
-    user?: User,
   ): Promise<Challenge[]> {
-    const defaultChallenges = await this.challengeRepository.find({
+    return this.challengeRepository.find({
       category: {
         name: categoryName,
       },
       is_public: true,
     });
-    if (!user) {
-      return defaultChallenges;
-    }
-
-    const userOwnChallenges = await this.challengeRepository.find({
-      category: {
-        name: categoryName,
-      },
-      author: user
-    })
-    return [
-      ...defaultChallenges,
-      ...userOwnChallenges,
-    ];
   }
 
   async getChallengeById(challengeId: number): Promise<Challenge> {
@@ -79,32 +65,31 @@ export class ChallengeService {
   async createOwnChallenge(
     user: User,
     createOwnChallengeDto: CreateOwnChallengeDto
-  ): Promise<Challenge> {
+  ): Promise<Bucket> {
     const { challenge: createChallengeDto, missions } = createOwnChallengeDto;
-    createChallengeDto.author = user;
 
-    let challenge: Challenge;
-    let category: Category;
+    // TODO: 배포 전 활성화
+    // if (missions.length !== 30) {
+    //   throw new BadRequestException(`미션 30일을 모두 채워야 등록 가능합니다.`);
+    // }
 
-    const {
-      category: categoryName,
-      ...newChallengeInfo
-    } = createChallengeDto;
-    if (categoryName) {
-      category = await this.categoryRepository.findOne({ name: categoryName });
-    } else {
-      category = null;
-    }
-    const newChallengeDto: CreateChallengeDto<Category> = {
-      category,
-      ...newChallengeInfo
-    };
-    challenge = this.challengeRepository.create(newChallengeDto);
+    const category = await this.categoryRepository.findOne({ name: `UserOwnChallenge` });
+    const challenge: Challenge = this.challengeRepository.create({
+      ...createChallengeDto,
+      category: category,
+      is_public: false,
+      author: user,
+    });
     await this.challengeRepository.persistAndFlush(challenge);
 
-    return this.registerChallengeMissions(
+    await this.registerChallengeMissions(
       missions,
       challenge.id,
     );
+
+    return this.bucketsService.createBucket({
+      user: user,
+      challenge: challenge.id
+    })
   }
 }
