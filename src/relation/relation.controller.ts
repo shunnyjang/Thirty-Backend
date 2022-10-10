@@ -89,9 +89,9 @@ export class RelationController {
   @Post('')
   async sendRSVP(
     @Req() req,
-    @Body('friendId') objUserId: string,
+    @Body('friend') friendId: string,
   ): Promise<Relation> {
-    return this.relationService.sendRSVP(req.user, objUserId);
+    return this.relationService.sendRSVP(req.user, friendId);
   }
 
   @ApiOperation({ summary: `친구 요청 응답` })
