@@ -35,7 +35,8 @@ export class Notification extends BaseEntity {
     entity: () => User,
     joinColumn: `related_user_id`,
     referenceColumnName: `id`,
-    eager: true,
+    eager: false,
+    persist: false,
     serializer: (value) => value.nickname,
   })
   relatedUserNickname: User;
@@ -86,14 +87,8 @@ export class Notification extends BaseEntity {
     }
   }
 
-  setNotificationMessage(
-    notiType: NotificationType,
-    challengeName?: string,
-  ) {
-    this.message = this.getNotificationMessage(
-      notiType,
-      challengeName,
-    );
+  setNotificationMessage(notiType: NotificationType, challengeName?: string) {
+    this.message = this.getNotificationMessage(notiType, challengeName);
   }
 
   private getNotificationMessage(
