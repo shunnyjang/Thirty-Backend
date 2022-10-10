@@ -158,11 +158,9 @@ export class BucketsService {
     };
   }
 
-  async getAnswerByBucketAndDate(
-    bucketId: string,
-    date: number,
-  ): Promise<Answer> {
-    return this.em.execute(`
+  async getAnswerByBucketAndDate(bucketId: string, date: number): Promise<any> {
+    return (
+      await this.em.execute(`
       select a.*
            , m.detail as mission
        from  answer a
@@ -175,7 +173,8 @@ export class BucketsService {
         and  m.date = a.date
       where  b.id = '${bucketId}'
         and  a.date = ${date}
-    `);
+    `)
+    )[0];
   }
 
   async updateAnswer(
