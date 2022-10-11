@@ -24,7 +24,7 @@ export class NotificationService {
     private readonly notificationRepository: EntityRepository<Notification>,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
-    private readonly em: EntityManager
+    private readonly em: EntityManager,
   ) {}
 
   async createNotification(
@@ -38,8 +38,7 @@ export class NotificationService {
   async getNotificationList(user: User): Promise<Notification[]> {
     return this.notificationRepository.find(
       { userId: user.id },
-      { orderBy: { created_at: QueryOrder.ASC },
-     },
+      { orderBy: { created_at: QueryOrder.DESC } },
     );
   }
 

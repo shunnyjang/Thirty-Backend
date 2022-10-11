@@ -35,7 +35,7 @@ export class Notification extends BaseEntity {
     entity: () => User,
     joinColumn: `related_user_id`,
     referenceColumnName: `id`,
-    eager: false,
+    eager: true,
     persist: false,
     serializer: (value) => value.nickname,
   })
