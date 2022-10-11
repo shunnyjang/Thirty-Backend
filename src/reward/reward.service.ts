@@ -102,9 +102,6 @@ export class RewardService {
   }
 
   private async createReward(userId: string, prizeCode: string): Promise<void> {
-    if (await this.isRewardExists(userId, prizeCode))
-      throw new BadRequestException(`이미 가지고 있는 뱃지 입니다.`);
-
     const prize = await this.prizeRepository.findOne({ prizeCode: prizeCode });
     if (!prize) {
       throw new BadRequestException(`존재하지 않는 뱃지입니다.`);
