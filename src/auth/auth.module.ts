@@ -9,12 +9,14 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { PushModule } from 'src/push/push.module';
 
 @Module({
   imports: [
     forwardRef(() => UserModule),
     PassportModule,
     ConfigModule,
+    PushModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

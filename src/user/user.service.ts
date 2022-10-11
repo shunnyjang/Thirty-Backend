@@ -45,16 +45,14 @@ export class UserService {
   }
 
   async register(registerUserDto: RegisterUserDto): Promise<User> {
-    const { user, ...userDataObject } = registerUserDto;
-
-    userDataObject.password = await crypt.getHashedValue(
-      registerUserDto.password,
-    );
-    Object.assign(userDataObject, {
+    const { user, password, ...userDataObject } = registerUserDto;
+;
+    wrap(user).assign({
+      ...userDataObject,
+      password: await crypt.getHashedValue(password),
       isSignedUp: true,
       signup_at: new Date(),
     });
-    wrap(user).assign(userDataObject);
     this.userRepository.flush();
 
     return user;
