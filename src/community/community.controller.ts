@@ -27,7 +27,7 @@ export class CommunityController {
           { $ref: getSchemaPath(CommunityResponse) },
           {
             properties: {
-              isFriend: {
+              isfriend: {
                 type: `boolean`,
                 example: `false`,
                 description: `친구 여부`,
