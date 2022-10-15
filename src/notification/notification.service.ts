@@ -1,6 +1,6 @@
 import { QueryOrder } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { EntityManager, EntityRepository } from '@mikro-orm/postgresql';
+import { EntityRepository } from '@mikro-orm/postgresql';
 import {
   BadRequestException,
   ForbiddenException,
@@ -8,9 +8,9 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
-import { Notification, User } from 'src/entities';
+import { Notification, Relation, User } from 'src/entities';
 import { RelationStatus } from 'src/relation/relation-stautus.enum';
-import { UserService } from 'src/user/user.service';
+import { RelationService } from 'src/relation/relation.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import {
   NotificationType,
@@ -22,9 +22,8 @@ export class NotificationService {
   constructor(
     @InjectRepository(Notification)
     private readonly notificationRepository: EntityRepository<Notification>,
-    @Inject(forwardRef(() => UserService))
-    private readonly userService: UserService,
-    private readonly em: EntityManager,
+    @Inject(forwardRef(() => RelationService))
+    private readonly relationService: RelationService,
   ) {}
 
   async createNotification(
@@ -103,6 +102,26 @@ export class NotificationService {
     }
   }
 
+  async completedBucket(user: User, challengeName: string, bucketId: string) {
+    this.sendNotificationToFriends(
+      user,
+      NotificationTypeCode.BUCKET_COMPLETED,
+      challengeName,
+      'bucket',
+      bucketId,
+    );
+  }
+
+  async registerAnswer(user: User, challengeName: string, bucketId: string) {
+    this.sendNotificationToFriends(
+      user,
+      NotificationTypeCode.BUCKET_ANSWER,
+      challengeName,
+      'answer',
+      `${bucketId}`,
+    );
+  }
+
   private async getNotificationById(
     notificationId: number,
   ): Promise<Notification> {
@@ -123,5 +142,30 @@ export class NotificationService {
       return true;
     }
     return false;
+  }
+
+  private async sendNotificationToFriends(
+    user: User,
+    type: NotificationType,
+    challengeName: string,
+    sourceName: string,
+    sourceId: string,
+  ) {
+    const relations: Relation[] = await this.relationService.getRelationList(
+      user,
+    );
+    for (const relation of relations) {
+      const { friendId, ..._ } = relation;
+      const notification = new Notification({
+        userId: friendId,
+        relatedUserId: user.id,
+        type: type,
+        sourceName: sourceName,
+        sourceId: sourceId,
+      });
+      notification.setNotificationMessage(type, challengeName);
+      this.notificationRepository.persist(notification);
+    }
+    this.notificationRepository.flush();
   }
 }

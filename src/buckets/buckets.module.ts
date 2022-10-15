@@ -8,6 +8,7 @@ import { UserModule } from 'src/user/user.module';
 import { CaslModule } from 'src/casl/casl.module';
 import { ChallengeModule } from 'src/challenge/challenge.module';
 import { RewardModule } from 'src/reward/reward.module';
+import { NotificationModule } from 'src/notification/notification.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { RewardModule } from 'src/reward/reward.module';
     CaslModule,
     forwardRef(() => ChallengeModule),
     RewardModule,
+    NotificationModule,
   ],
   exports: [BucketsService],
   providers: [BucketsService],

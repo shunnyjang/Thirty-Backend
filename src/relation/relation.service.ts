@@ -1,6 +1,11 @@
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { Relation, User } from 'src/entities';
 import { NotificationTypeCode } from 'src/notification/notification-type.enum';
 import { NotificationService } from 'src/notification/notification.service';
@@ -13,6 +18,7 @@ export class RelationService {
   constructor(
     @InjectRepository(Relation)
     private readonly relationRepository: EntityRepository<Relation>,
+    @Inject(forwardRef(() => NotificationService))
     private readonly notificationService: NotificationService,
     private readonly rewardService: RewardService,
   ) {}

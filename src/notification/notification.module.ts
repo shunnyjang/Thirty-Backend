@@ -3,11 +3,11 @@ import { NotificationService } from './notification.service';
 import { NotificationController } from './notification.controller';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Notification } from 'src/entities';
-import { UserModule } from 'src/user/user.module';
+import { RelationModule } from 'src/relation/relation.module';
 
 @Module({
   imports: [
-    forwardRef(() => UserModule),
+    forwardRef(() => RelationModule),
     MikroOrmModule.forFeature([Notification]),
   ],
   exports: [NotificationService],
