@@ -1,10 +1,18 @@
-import { EntityRepository } from '@mikro-orm/core';
+import { EntityRepository, QueryOrder } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { BadRequestException, forwardRef, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { BucketsService } from 'src/buckets/buckets.service';
 import { Bucket, Category, Challenge, Mission, User } from 'src/entities';
 import { CreateMissionDto } from './dto/create-mission.dto';
-import { CreateChallengeDto, CreateOwnChallengeDto } from './dto/create-own-challenge.dto';
+import {
+  CreateChallengeDto,
+  CreateOwnChallengeDto,
+} from './dto/create-own-challenge.dto';
 
 @Injectable()
 export class ChallengeService {
@@ -36,7 +44,14 @@ export class ChallengeService {
     try {
       const challenge = await this.challengeRepository.findOneOrFail(
         { id: challengeId },
-        { populate: ['missions'] },
+        {
+          populate: ['missions'],
+          orderBy: {
+            missions: {
+              date: QueryOrder.ASC,
+            },
+          },
+        },
       );
       return challenge;
     } catch (e) {
@@ -64,7 +79,7 @@ export class ChallengeService {
 
   async createOwnChallenge(
     user: User,
-    createOwnChallengeDto: CreateOwnChallengeDto
+    createOwnChallengeDto: CreateOwnChallengeDto,
   ): Promise<Bucket> {
     const { challenge: createChallengeDto, missions } = createOwnChallengeDto;
 
@@ -73,7 +88,9 @@ export class ChallengeService {
     //   throw new BadRequestException(`미션 30일을 모두 채워야 등록 가능합니다.`);
     // }
 
-    const category = await this.categoryRepository.findOne({ name: `UserOwnChallenge` });
+    const category = await this.categoryRepository.findOne({
+      name: `UserOwnChallenge`,
+    });
     const challenge: Challenge = this.challengeRepository.create({
       ...createChallengeDto,
       category: category,
@@ -82,14 +99,11 @@ export class ChallengeService {
     });
     await this.challengeRepository.persistAndFlush(challenge);
 
-    await this.registerChallengeMissions(
-      missions,
-      challenge.id,
-    );
+    await this.registerChallengeMissions(missions, challenge.id);
 
     return this.bucketsService.createBucket({
       user: user,
-      challenge: challenge.id
-    })
+      challenge: challenge.id,
+    });
   }
 }
