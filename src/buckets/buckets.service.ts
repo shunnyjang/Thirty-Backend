@@ -19,6 +19,7 @@ import { CreateNewbieBucketDto } from './dto/create-newbie-buckets.dto';
 import { BucketStatus } from './bucket-status.enum';
 import { UpdateAnswerDto } from './dto/update-answer.dto';
 import { RewardService } from 'src/reward/reward.service';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class BucketsService {
@@ -29,6 +30,7 @@ export class BucketsService {
     @Inject(forwardRef(() => ChallengeService))
     private readonly challengeService: ChallengeService,
     private readonly rewardService: RewardService,
+    private readonly notficationService: NotificationService,
     @InjectRepository(Bucket)
     private readonly bucketRepository: EntityRepository<Bucket>,
     @InjectRepository(Answer)
@@ -148,7 +150,21 @@ export class BucketsService {
         user,
         completedChallengeBucketCount + 1,
       );
+      // send notification
+      this.notficationService.completedBucket(
+        user,
+        bucket.challenge.title,
+        bucket.id,
+      );
+    } else {
+      // send notification
+      this.notficationService.registerAnswer(
+        user,
+        bucket.challenge.title,
+        bucket.id,
+      );
     }
+
     this.bucketRepository.persistAndFlush(bucket);
     await this.userService.checkUserAttendance(user);
     await this.rewardService.getRewardAttendance(user);
