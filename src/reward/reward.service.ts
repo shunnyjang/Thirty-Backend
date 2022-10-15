@@ -49,7 +49,9 @@ export class RewardService {
     for (const day of fulfilledDays) {
       const prizeCode = 'AT' + day;
 
-      if (await this.isRewardExists(userId, prizeCode)) return;
+      const isRewardExists = await this.isRewardExists(userId, prizeCode);
+      if (isRewardExists) return;
+
       if (user.continuous_attendance !== Number(day)) continue;
       await this.createReward(userId, prizeCode);
     }
@@ -67,7 +69,9 @@ export class RewardService {
     for (const day of fulfilledDays) {
       const prizeCode: string = 'CH' + day;
 
-      if (await this.isRewardExists(userId, prizeCode)) return;
+      const isRewardExists = await this.isRewardExists(userId, prizeCode);
+      if (isRewardExists) return;
+
       if (completedBucketCount != Number(day)) continue;
       await this.createReward(userId, prizeCode);
     }
@@ -83,7 +87,9 @@ export class RewardService {
     for (const num of fulfilledNumber) {
       const prizeCode: string = 'FR' + num;
 
-      if (await this.isRewardExists(userId, prizeCode)) return;
+      const isRewardExists = await this.isRewardExists(userId, prizeCode);
+      if (isRewardExists) return;
+
       if (relationshipNumber != Number(num)) continue;
       await this.createReward(userId, prizeCode);
     }
@@ -102,11 +108,6 @@ export class RewardService {
   }
 
   private async createReward(userId: string, prizeCode: string): Promise<void> {
-    const prize = await this.prizeRepository.findOne({ prizeCode: prizeCode });
-    if (!prize) {
-      throw new BadRequestException(`존재하지 않는 뱃지입니다.`);
-    }
-
     const reward: Reward = this.rewardRepository.create({
       userId: userId,
       prizeCode: prizeCode,
