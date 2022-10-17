@@ -146,7 +146,7 @@ export class BucketsService {
       bucket.status = BucketStatus.COMPLETED;
       const completedChallengeBucketCount =
         await this.getCompletedChallengeBucketCount(user);
-      this.rewardService.getRewardChallenge(
+      await this.rewardService.getRewardChallenge(
         user,
         completedChallengeBucketCount + 1,
       );

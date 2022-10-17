@@ -79,7 +79,10 @@ export class RewardService {
       if (completedBucketCount != Number(day)) continue;
       await this.createReward(userId, prizeCode);
     }
-    this.rewardRepository.flush();
+
+    try {
+      await this.rewardRepository.flush();
+    } catch (error) {}
   }
 
   /**
