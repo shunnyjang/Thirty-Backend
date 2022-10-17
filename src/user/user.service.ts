@@ -46,13 +46,19 @@ export class UserService {
 
   async register(registerUserDto: RegisterUserDto): Promise<User> {
     const { user, password, ...userDataObject } = registerUserDto;
-;
-    wrap(user).assign({
-      ...userDataObject,
-      password: await crypt.getHashedValue(password),
-      signup_at: new Date(),
-    });
-    this.userRepository.flush();
+
+    try {
+      wrap(user).assign({
+        ...userDataObject,
+        password: await crypt.getHashedValue(password),
+        signup_at: new Date(),
+      });
+      await this.userRepository.flush();
+    } catch (error) {
+      // duplicate unique key
+      if (error.code == 23505)
+        throw new BadRequestException(`이미 가입한 이메일 입니다.`);
+    }
 
     return user;
   }
