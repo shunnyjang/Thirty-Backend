@@ -77,7 +77,6 @@ export class ChallengeController {
     isArray: true,
   })
   @Get('/:category')
-  @UseGuards(JwtAuthGuard)
   getChallengeByName(
     @Param('category') categoryName: string,
   ): Promise<Challenge[]> {

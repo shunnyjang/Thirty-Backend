@@ -18,7 +18,7 @@ export class PushService {
       // duplicate unique key
       if (error.code == 23505)
         throw new BadRequestException(
-          `이미 가입된 이메일 입니다. 관리자에게 문의하세요. [push schedule]`,
+          `이미 가입한 기록이 있습니다. 관리자에게 문의하세요. [push schedule]`,
         );
     }
   }
