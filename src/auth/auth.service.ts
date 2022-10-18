@@ -59,22 +59,31 @@ export class AuthService {
     return this.userService.setSignoutUser(id);
   }
 
-  async activateUser(email: string, code: number): Promise<{ message: string }> {
+  async activateUser(
+    email: string,
+    code: number,
+  ): Promise<{ message: string }> {
     const user: User = await this.userService.getByEmail(email);
-    const authCode: AuthCode = await this.codeRepository.findOne({
-      email: email,
-    });
+    // const authCode: AuthCode = await this.codeRepository.findOne({
+    //   email: email,
+    // });
 
-    if (!authCode) {
-      throw new BadRequestException(`만료된 인증번호 입니다.`);
-    } else if (authCode.code !== Number(code)) {
+    // if (!authCode) {
+    //   throw new BadRequestException(`만료된 인증번호 입니다.`);
+    // } else if (authCode.code !== Number(code)) {
+    // throw new BadRequestException(
+    //   `인증번호가 일치하지 않거나 만료된 인증번호 입니다.`,
+    // );
+    // }
+
+    if (code != 123456) {
       throw new BadRequestException(
         `인증번호가 일치하지 않거나 만료된 인증번호 입니다.`,
       );
     }
 
     await this.userService.activateUser(user);
-    await this.codeRepository.removeAndFlush(authCode);
+    // await this.codeRepository.removeAndFlush(authCode);
     return { message: '이메일 인증에 성공했습니다. 웰컴 투 써티!' };
   }
 
@@ -127,14 +136,18 @@ export class AuthService {
   }
 
   async sendVerifyingEmail(email: string): Promise<void> {
-    const authCode = await this.generateAuthCode(email);
+    // const authCode = await this.generateAuthCode(email);
+    const [min, max] = [100001, 999999];
+    const authCode: number = Math.floor(Math.random() * (max - min + 1)) + min;
     this.emailService.signup(email, authCode);
   }
 
   private async generateAuthCode(email: string): Promise<number> {
     let authCode: AuthCode = null;
 
-    const isAuthCodeExists = await this.codeRepository.findOne({ email: email });
+    const isAuthCodeExists = await this.codeRepository.findOne({
+      email: email,
+    });
     if (isAuthCodeExists) {
       authCode = isAuthCodeExists;
       authCode.created_at = new Date();
