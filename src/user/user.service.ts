@@ -75,14 +75,16 @@ export class UserService {
     return true;
   }
 
-  async getUserProfileById(id: string): Promise<any> {
-    const user = await this.getById(id);
-    const rewardCount = await this.rewardService.getRewardCountByUserId(id);
+  async getUserProfileById(user: User): Promise<any> {
+    const {
+      password, refreshToken, ...safeUserData
+    } = user;
+    const rewardCount = await this.rewardService.getRewardCountByUserId(user.id);
     const completedChallengeCount =
       await this.bucketService.getCompletedChallengeBucketCount(user);
-    const relationCount = await this.relationService.getRelationCount(id);
+    const relationCount = await this.relationService.getRelationCountByUserId(user.id);
     return {
-      user: user,
+      user: safeUserData,
       rewardCount: rewardCount,
       completedChallengeCount: completedChallengeCount,
       relationCount: relationCount,

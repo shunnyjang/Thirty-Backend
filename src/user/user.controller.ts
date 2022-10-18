@@ -37,10 +37,9 @@ export class UserController {
     status: 200,
     type: User,
   })
-  @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(JwtAuthGuard)
   async getUserProfile(@Req() req): Promise<any> {
-    return this.userService.getUserProfileById(req.user.id);
+    return this.userService.getUserProfileById(req.user);
   }
 
   @Patch('/profile')

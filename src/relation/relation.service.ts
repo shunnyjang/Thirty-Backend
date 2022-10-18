@@ -30,7 +30,7 @@ export class RelationService {
     });
   }
 
-  async getRelationCount(userId: string): Promise<number> {
+  async getRelationCountByUserId(userId: string): Promise<number> {
     return this.relationRepository.count({
       userId: userId,
       status: RelationStatus.CONFIRMED,
@@ -101,12 +101,12 @@ export class RelationService {
       // create user's reward
       this.rewardService.getRewardRelation(
         userId,
-        await this.getRelationCount(userId),
+        await this.getRelationCountByUserId(userId),
       );
       // create friend's reward
       this.rewardService.getRewardRelation(
         friendId,
-        await this.getRelationCount(friendId),
+        await this.getRelationCountByUserId(friendId),
       );
     }
   }

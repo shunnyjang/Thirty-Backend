@@ -121,7 +121,9 @@ export class BucketsService {
 
   async getCompletedChallengeBucketCount(user: User): Promise<number> {
     return this.bucketRepository.count({
-      user: user,
+      user: {
+        id: user.id
+      },
       status: BucketStatus.COMPLETED,
     });
   }
