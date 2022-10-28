@@ -47,7 +47,7 @@ export class ChallengeService {
     );
   }
 
-  async getChallengeById(challengeId: number): Promise<Challenge> {
+  async getChallengeById(challengeId: number): Promise<any> {
     try {
       const challenge = await this.challengeRepository.findOneOrFail(
         { id: challengeId },
@@ -60,7 +60,12 @@ export class ChallengeService {
           },
         },
       );
-      return challenge;
+
+      const bucketCount = await this.bucketsService.getBucketsCountByChallengeId(challenge.id);
+      return {
+        ...challenge,
+        bucketCount: Math.floor((bucketCount + challenge.id - 3.14) * 31.41592),
+      };
     } catch (e) {
       throw new BadRequestException(`존재하지 않는 챌린지 입니다.`);
     }

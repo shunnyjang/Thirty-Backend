@@ -278,6 +278,14 @@ export class BucketsService {
     return { message: '성공적으로 챌린지 상태를 변경하였습니다.' };
   }
 
+  async getBucketsCountByChallengeId(challengeId: number): Promise<number> {
+    return this.bucketRepository.count({
+      challenge: {
+        id: challengeId,
+      },
+    });
+  }
+
   async getBucketById(id: string): Promise<Bucket> {
     const bucket = await this.bucketRepository.findOne(id);
     if (!bucket) {

@@ -97,6 +97,11 @@ export class ChallengeController {
               type: 'array',
               items: { $ref: getSchemaPath(Mission) },
             },
+            bucketCount: {
+              type: 'number',
+              description: '이 챌린지를 진행하고 있는 수',
+              example: 52
+            }
           },
         },
       ],
@@ -124,7 +129,7 @@ export class ChallengeController {
   @Get('/:category/:id')
   getQuestionsByChallengeId(
     @Param('id', ParseIntPipe) challengeId: number,
-  ): Promise<Challenge> {
+  ): Promise<any> {
     return this.challengeService.getChallengeById(challengeId);
   }
 
