@@ -31,8 +31,9 @@ export class ChallengeService {
 
   async getChellengesByCategoryName(
     categoryName: string,
+    user?: User,
   ): Promise<Challenge[]> {
-    return this.challengeRepository.find(
+    const challenges = await this.challengeRepository.find(
       {
         category: {
           name: categoryName,
@@ -45,6 +46,22 @@ export class ChallengeService {
         },
       },
     );
+
+    if (!user) {
+      for (const challenge of challenges) {
+        challenge.isUserOwned = false;
+      }
+    } else {
+      // 로그인한 사용자가 해당 챌린지를 진행 중인지 알려준다.
+      for (const challenge of challenges) {
+        const isUserOwned = await this.bucketsService.isUserOwnedChallenge(
+          user,
+          challenge,
+        );
+        challenge.isUserOwned = isUserOwned;
+      }
+    }
+    return challenges;
   }
 
   async getChallengeById(challengeId: number): Promise<any> {
@@ -61,7 +78,8 @@ export class ChallengeService {
         },
       );
 
-      const bucketCount = await this.bucketsService.getBucketsCountByChallengeId(challenge.id);
+      const bucketCount =
+        await this.bucketsService.getBucketsCountByChallengeId(challenge.id);
       return {
         ...challenge,
         bucketCount: Math.floor((bucketCount + challenge.id - 3.14) * 31.41592),

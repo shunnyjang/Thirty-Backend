@@ -24,7 +24,7 @@ import {
   ApiTags,
   getSchemaPath,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/guards';
+import { AnonymousGuard, JwtAuthGuard } from 'src/auth/guards';
 import { CreateOwnChallengeDto } from './dto/create-own-challenge.dto';
 
 @ApiTags('Challenges')
@@ -62,7 +62,7 @@ export class ChallengeController {
   createOwnChallenge(
     @Req() req,
     @Body() createOwnChallengeDto: CreateOwnChallengeDto,
-  ): Promise<{ bucket: Bucket, message: string }> {
+  ): Promise<{ bucket: Bucket; message: string }> {
     return this.challengeService.createOwnChallenge(
       req.user,
       createOwnChallengeDto,
@@ -77,10 +77,15 @@ export class ChallengeController {
     isArray: true,
   })
   @Get('/:category')
+  @UseGuards(AnonymousGuard)
   getChallengeByName(
+    @Req() req,
     @Param('category') categoryName: string,
   ): Promise<Challenge[]> {
-    return this.challengeService.getChellengesByCategoryName(categoryName);
+    return this.challengeService.getChellengesByCategoryName(
+      categoryName,
+      req.user,
+    );
   }
 
   @ApiOperation({ summary: `챌린지 상세 조회` })
@@ -100,8 +105,8 @@ export class ChallengeController {
             bucketCount: {
               type: 'number',
               description: '이 챌린지를 진행하고 있는 수',
-              example: 52
-            }
+              example: 52,
+            },
           },
         },
       ],

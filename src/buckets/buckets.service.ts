@@ -39,7 +39,9 @@ export class BucketsService {
     private readonly em: EntityManager,
   ) {}
 
-  async createBucket(createBucketDto: CreateBucketDto): Promise<{ bucket: Bucket, message: string }> {
+  async createBucket(
+    createBucketDto: CreateBucketDto,
+  ): Promise<{ bucket: Bucket; message: string }> {
     const { user, challenge: challengeId } = createBucketDto;
     if (await this.isSameChallengeBucketWorkedOn(user, challengeId)) {
       throw new BadRequestException(`이미 진행 중인 챌린지 입니다.`);
@@ -125,7 +127,7 @@ export class BucketsService {
   async getCompletedChallengeBucketCount(user: User): Promise<number> {
     return this.bucketRepository.count({
       user: {
-        id: user.id
+        id: user.id,
       },
       status: BucketStatus.COMPLETED,
     });
@@ -183,7 +185,7 @@ export class BucketsService {
 
     return {
       bucketStatus: bucket.status,
-      message: '오늘의 챌린지에 답변 달기 성공!'
+      message: '오늘의 챌린지에 답변 달기 성공!',
     };
   }
 
@@ -292,6 +294,21 @@ export class BucketsService {
       throw new BadRequestException(`존재하지 않는 챌린지 버킷 입니다.`);
     }
     return bucket;
+  }
+
+  async isUserOwnedChallenge(user: User, challenge: Challenge) {
+    if (!user) {
+      return false;
+    }
+
+    const bucket = await this.bucketRepository.findOne({
+      user: user,
+      challenge: challenge,
+    });
+    if (!bucket || !bucket.isBucketWorkedOn) {
+      return false;
+    }
+    return true;
   }
 
   private async isSameChallengeBucketWorkedOn(

@@ -80,4 +80,13 @@ export class Challenge extends BaseEntity {
     cascade: [Cascade.ALL],
   })
   missions = new Collection<Mission>(this);
+
+  @ApiProperty({
+    example: false,
+    description: `사용자가 챌린지 갖고 있는지 여부`,
+  })
+  @Property({
+    persist: false,
+  })
+  isUserOwned: boolean;
 }
