@@ -78,13 +78,15 @@ export class UserService {
   }
 
   async getUserProfileById(user: User): Promise<any> {
-    const {
-      password, refreshToken, ...safeUserData
-    } = user;
-    const rewardCount = await this.rewardService.getRewardCountByUserId(user.id);
+    const { password, refreshToken, ...safeUserData } = user;
+    const rewardCount = await this.rewardService.getRewardCountByUserId(
+      user.id,
+    );
     const completedChallengeCount =
       await this.bucketService.getCompletedChallengeBucketCount(user);
-    const relationCount = await this.relationService.getRelationCountByUserId(user.id);
+    const relationCount = await this.relationService.getRelationCountByUserId(
+      user.id,
+    );
     return {
       user: safeUserData,
       rewardCount: rewardCount,
@@ -127,14 +129,10 @@ export class UserService {
   async update(user: User, updateUserDto: UpdateUserDto): Promise<any> {
     wrap(user).assign(updateUserDto);
     await this.userRepository.flush();
-    const {
-      refreshToken,
-      password,
-      ...safeUserData
-    } = user;
+    const { refreshToken, password, ...safeUserData } = user;
     return {
       user: safeUserData,
-      message: '사용자 정보 수정에 성공했습니다.'
+      message: '사용자 정보 수정에 성공했습니다.',
     };
   }
 
@@ -169,44 +167,48 @@ export class UserService {
   async editPassword({ email, password }) {
     const user = await this.getByEmail(email);
     wrap(user).assign({
-      password: await crypt.getHashedValue(password)
+      password: await crypt.getHashedValue(password),
     });
     try {
       await this.userRepository.flush();
     } catch (error) {
       console.log(error.message);
-      throw new BadRequestException(`비밀번호 수정 실패, 관리자에게 문의하세요.`);
+      throw new BadRequestException(
+        `비밀번호 수정 실패, 관리자에게 문의하세요.`,
+      );
     }
 
     const { refreshToken, password: _, ...safeUserData } = user;
     return safeUserData;
   }
 
-  async report(user: User, createReportDto: CreateBlockDto): Promise<{ message: string }> {
-    const isTargetUserExists: User = 
-      await this.getById(createReportDto.targetUserId);
+  async report(
+    user: User,
+    createReportDto: CreateBlockDto,
+  ): Promise<{ message: string }> {
+    const isTargetUserExists: User = await this.getById(
+      createReportDto.targetUserId,
+    );
 
     createReportDto.userId = user.id;
     return this.blockService.report(createReportDto);
   }
 
   async block(user: User, targetUserId: string) {
-    const isTargetUserExists: User =
-      await this.getById(targetUserId);
+    const isTargetUserExists: User = await this.getById(targetUserId);
 
     return this.blockService.block({
       userId: user.id,
-      targetUserId: targetUserId
+      targetUserId: targetUserId,
     });
   }
 
   async unblock(user: User, targetUserId: string) {
-    const isTargetUserExists: User =
-      await this.getById(targetUserId);
+    const isTargetUserExists: User = await this.getById(targetUserId);
 
     return this.blockService.unblock({
       userId: user.id,
-      targetUserId: targetUserId
+      targetUserId: targetUserId,
     });
   }
 

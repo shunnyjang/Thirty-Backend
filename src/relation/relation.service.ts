@@ -44,8 +44,16 @@ export class RelationService {
         `옳지 못한 요청입니다: 요청 유저 ID와 친구 신청 유저 ID 동일.`,
       );
     }
-    const userOwnedRelation = new Relation(userId, friendId, RelationStatus.PENDING);
-    const friendOwnedRelelation = new Relation(friendId, userId, RelationStatus.PENDING);
+    const userOwnedRelation = new Relation(
+      userId,
+      friendId,
+      RelationStatus.PENDING,
+    );
+    const friendOwnedRelelation = new Relation(
+      friendId,
+      userId,
+      RelationStatus.PENDING,
+    );
 
     try {
       await this.relationRepository.persistAndFlush([
@@ -110,14 +118,18 @@ export class RelationService {
         await this.getRelationCountByUserId(friendId),
       );
     }
-    
-    return { 
-      message: 
-        `성공적으로 친구 신청에 ${(status === RelationStatus.CONFIRMED) ? '수락' : '거절'}하였습니다.`
-      };
+
+    return {
+      message: `성공적으로 친구 신청에 ${
+        status === RelationStatus.CONFIRMED ? '수락' : '거절'
+      }하였습니다.`,
+    };
   }
 
-  async disconnect(userId: string, friendId: string): Promise<{ message: string }> {
+  async disconnect(
+    userId: string,
+    friendId: string,
+  ): Promise<{ message: string }> {
     this.relationRepository.remove(
       await this.getByUserIdAndFriendId(userId, friendId),
     );
@@ -125,7 +137,7 @@ export class RelationService {
       await this.getByUserIdAndFriendId(friendId, userId),
     );
     await this.relationRepository.flush();
-    
+
     return { message: '성공적으로 친구를 삭제했습니다.' };
   }
 
@@ -137,13 +149,24 @@ export class RelationService {
 
     if (relation) {
       relation.status = RelationStatus.BLOCKED;
-      const targetRelation = await this.getByUserIdAndFriendId(friendId, userId);
+      const targetRelation = await this.getByUserIdAndFriendId(
+        friendId,
+        userId,
+      );
       targetRelation.status = RelationStatus.BLOCKED;
 
       this.relationRepository.persist([relation, targetRelation]);
     } else {
-      const sourceRelation = new Relation(userId, friendId, RelationStatus.BLOCKED);
-      const targetRelation = new Relation(friendId, userId, RelationStatus.BLOCKED);
+      const sourceRelation = new Relation(
+        userId,
+        friendId,
+        RelationStatus.BLOCKED,
+      );
+      const targetRelation = new Relation(
+        friendId,
+        userId,
+        RelationStatus.BLOCKED,
+      );
       this.relationRepository.persist([sourceRelation, targetRelation]);
     }
 
