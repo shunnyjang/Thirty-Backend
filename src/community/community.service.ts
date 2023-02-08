@@ -5,13 +5,14 @@ import { Relation, User } from 'src/entities';
 import { RelationStatus } from 'src/relation/relation-stautus.enum';
 import { UserVisiblity } from 'src/user/user-visibility.enum';
 import { CommunityResponse } from './community-response.type';
+import { getUrlOpenGraphData } from 'src/utils/open-graph';
 
 @Injectable()
 export class CommunityService {
   constructor(private readonly em: EntityManager) {}
 
-  async getFriendCommunityList(user: User): Promise<CommunityResponse[]> {
-    return this.em.execute(`
+  async getFriendCommunityList(user: User): Promise<any[]> {
+    const answers = await this.em.execute(`
         with friends as (
          select r.friend_id
               , u.nickname
@@ -52,10 +53,16 @@ export class CommunityService {
         order  by a.created_at DESC
         ;
     `);
+
+    for (const answer of answers) {
+      answer.musicOpenGraph = await getUrlOpenGraphData(answer.music);
+    }
+
+    return answers;
   }
 
-  async getAllCommunityList(user: User): Promise<CommunityResponse[]> {
-    return this.em.execute(`
+  async getAllCommunityList(user: User): Promise<any[]> {
+    const answers = await this.em.execute(`
         select a.id as answerId
              , b.id as bucketId
              , u.id as userId
@@ -94,5 +101,11 @@ export class CommunityService {
         order  by a.created_at DESC
         ;
     `);
+
+    for (const answer of answers) {
+      answer.musicOpenGraph = await getUrlOpenGraphData(answer.music);
+    }
+
+    return answers;
   }
 }

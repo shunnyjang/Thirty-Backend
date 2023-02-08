@@ -2,6 +2,7 @@ import { Entity, ManyToOne, Property, Unique } from '@mikro-orm/core';
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseEntity } from './BaseEntity';
 import { Bucket } from './buckets.entity';
+import { getUrlOpenGraphData } from '../utils/open-graph';
 
 @Entity()
 @Unique({ properties: [`bucket`, `date`] })
@@ -69,4 +70,17 @@ export class Answer extends BaseEntity {
     description: `미션 타이틀`,
   })
   mission: string;
+
+  @ApiProperty({
+    example: `{ 
+      url: 'https://example.com', 
+      title: '새소년 - 난춘', 
+      image: 'https://example.com/image.com'
+    }`,
+    type: `object`,
+  })
+  @Property({ persist: false })
+  get musicOpenGraph() {
+    return this.music ? getUrlOpenGraphData(this.music) : null;
+  }
 }
