@@ -32,6 +32,20 @@ class MissionAnswerDto {
   music?: string;
 
   @ApiProperty({
+    example: {
+      url: 'https://www.youtube.com/watch?v=-E-_IRJU5w0',
+      title: 'Conan Gray - Maniac (Official Video)',
+      image: {
+        url: 'https://i.ytimg.com/vi/-E-_IRJU5w0/maxresdefault.jpg',
+        width: '1280',
+        height: '720',
+        type: 'jpg',
+      },
+    },
+  })
+  musicOpenGraph?: object;
+
+  @ApiProperty({
     example: `오늘 하루종일 들은 노래!`,
     type: `string`,
     description: `챌린지 답변 텍스트`,

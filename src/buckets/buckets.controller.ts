@@ -98,10 +98,10 @@ export class BucketsController {
         },
         message: {
           type: `string`,
-          example: `사진찍기 챌린지를 성공적으로 추가했습니다. 해피 써티!`
-        }
-      }
-    }
+          example: `사진찍기 챌린지를 성공적으로 추가했습니다. 해피 써티!`,
+        },
+      },
+    },
   })
   @ApiBadRequestResponse({
     status: 400,
@@ -110,12 +110,12 @@ export class BucketsController {
         {
           statusCode: 400,
           message: '존재하지 않는 챌린지 입니다.',
-          error: 'Bad Request'
+          error: 'Bad Request',
         },
         {
           statusCode: 400,
           message: '이미 진행 중인 챌린지 입니다.',
-          error: 'Bad Request'
+          error: 'Bad Request',
         },
       ],
     },
@@ -206,15 +206,15 @@ export class BucketsController {
         {
           statusCode: '400',
           message: '종료된 챌린지 입니다.',
-          error: 'Bad Request'
+          error: 'Bad Request',
         },
         {
           statusCode: '400',
           message: '이미 진행한 챌린지 날짜 입니다.',
-          error: 'Bad Request'
+          error: 'Bad Request',
         },
-      ]
-    }
+      ],
+    },
   })
   @UseInterceptors(FileInterceptor('image'))
   async createAnswer(
@@ -223,7 +223,10 @@ export class BucketsController {
     @Body() createAnswerDto: CreateAnswerDto,
     @UploadedFile() imageFile?,
   ): Promise<any> {
-    const uploadedImageUrl = await uploadFileOnAwsS3Bucket(imageFile, req.user.id);
+    const uploadedImageUrl = await uploadFileOnAwsS3Bucket(
+      imageFile,
+      req.user.id,
+    );
     if (uploadedImageUrl) {
       createAnswerDto.image = uploadedImageUrl;
     }
@@ -241,15 +244,15 @@ export class BucketsController {
         statusCode: 400,
         message: '초기화 실패. 관리자에게 문의하세요.',
         error: 'Bad Request',
-      }
-    }
+      },
+    },
   })
   @ApiOkResponse({
     schema: {
       example: {
-        message: '성공적으로 챌린지를 초기화 하였습니다.'
-      }
-    }
+        message: '성공적으로 챌린지를 초기화 하였습니다.',
+      },
+    },
   })
   @Delete('/:bucket_id')
   @UseGuards(JwtAuthGuard)
@@ -283,8 +286,8 @@ export class BucketsController {
     schema: {
       example: {
         message: '챌린지 답변 수정에 성공했습니다.',
-      }
-    }
+      },
+    },
   })
   @ApiForbiddenResponse({
     schema: {
@@ -305,7 +308,10 @@ export class BucketsController {
     @Body() updateAnswerDto: UpdateAnswerDto,
     @UploadedFile() imageFile?,
   ): Promise<any> {
-    const uploadedImageUrl = await uploadFileOnAwsS3Bucket(imageFile, req.user.id);
+    const uploadedImageUrl = await uploadFileOnAwsS3Bucket(
+      imageFile,
+      req.user.id,
+    );
     if (uploadedImageUrl) {
       updateAnswerDto.image = uploadedImageUrl;
     }
@@ -333,9 +339,9 @@ export class BucketsController {
   @ApiOkResponse({
     schema: {
       example: {
-        message: '성공적으로 챌린지 상태를 변경하였습니다.'
-      }
-    }
+        message: '성공적으로 챌린지 상태를 변경하였습니다.',
+      },
+    },
   })
   @Patch('/:bucket_id/status')
   @UseGuards(JwtAuthGuard)

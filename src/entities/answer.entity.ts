@@ -72,15 +72,17 @@ export class Answer extends BaseEntity {
   mission: string;
 
   @ApiProperty({
-    example: `{ 
-      url: 'https://example.com', 
-      title: '새소년 - 난춘', 
-      image: 'https://example.com/image.com'
-    }`,
-    type: `object`,
+    example: {
+      url: 'https://www.youtube.com/watch?v=-E-_IRJU5w0',
+      title: 'Conan Gray - Maniac (Official Video)',
+      image: {
+        url: 'https://i.ytimg.com/vi/-E-_IRJU5w0/maxresdefault.jpg',
+        width: '1280',
+        height: '720',
+        type: 'jpg',
+      },
+    },
   })
   @Property({ persist: false })
-  get musicOpenGraph() {
-    return this.music ? getUrlOpenGraphData(this.music) : null;
-  }
+  musicOpenGraph: object;
 }
