@@ -114,9 +114,9 @@ export class BucketsService {
      left join answer a 
        on a.bucket_id = b.id
       and a."date" = m."date"
+      and a.is_deleted = false
     where 1=1
       and b.id = '${bucketId}'
-      and a.is_deleted = false
     order by m."date";
     `);
 
