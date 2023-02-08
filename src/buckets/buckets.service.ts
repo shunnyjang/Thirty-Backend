@@ -21,6 +21,7 @@ import { BucketStatus } from './bucket-status.enum';
 import { UpdateAnswerDto } from './dto/update-answer.dto';
 import { RewardService } from 'src/reward/reward.service';
 import { NotificationService } from 'src/notification/notification.service';
+import { getUrlOpenGraphData } from '../utils/open-graph';
 
 @Injectable()
 export class BucketsService {
@@ -113,11 +114,16 @@ export class BucketsService {
      left join answer a 
        on a.bucket_id = b.id
       and a."date" = m."date"
-      and a.is_deleted = false
     where 1=1
       and b.id = '${bucketId}'
+      and a.is_deleted = false
     order by m."date";
     `);
+
+    for (const answer of answers) {
+      answer.musicOpenGraph = await getUrlOpenGraphData(answer.music);
+    }
+
     return {
       bucket: bucket,
       answers: answers,
@@ -215,7 +221,7 @@ export class BucketsService {
   }
 
   async getAnswerByBucketAndDate(bucketId: string, date: number): Promise<any> {
-    return (
+    const answer = (
       await this.em.execute(`
       select a.*
            , m.detail as mission
@@ -233,6 +239,10 @@ export class BucketsService {
         ;
     `)
     )[0];
+    if (answer.music) {
+      answer.musicOpenGraph = await getUrlOpenGraphData(answer.music);
+    }
+    return answer;
   }
 
   async updateAnswer(

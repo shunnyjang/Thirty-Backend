@@ -78,4 +78,18 @@ export class CommunityResponse {
     description: `등록 날짜`,
   })
   created_at: Date;
+
+  @ApiProperty({
+    example: {
+      url: 'https://www.youtube.com/watch?v=-E-_IRJU5w0',
+      title: 'Conan Gray - Maniac (Official Video)',
+      image: {
+        url: 'https://i.ytimg.com/vi/-E-_IRJU5w0/maxresdefault.jpg',
+        width: '1280',
+        height: '720',
+        type: 'jpg',
+      },
+    },
+  })
+  musicOpenGraph: object;
 }
