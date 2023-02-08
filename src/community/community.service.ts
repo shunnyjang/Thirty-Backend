@@ -14,7 +14,7 @@ export class CommunityService {
     return this.em.execute(`
         with friends as (
          select r.friend_id
-              , u.nickname
+              , u.nickname as usernickname
            from relation r
           inner join "user" u
              on u.id = r.friend_id
@@ -53,7 +53,6 @@ export class CommunityService {
         ;
     `);
   }
-
 
   async getAllCommunityList(user: User): Promise<CommunityResponse[]> {
     return this.em.execute(`
