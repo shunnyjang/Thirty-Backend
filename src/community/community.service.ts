@@ -14,7 +14,7 @@ export class CommunityService {
     return this.em.execute(`
         with friends as (
          select r.friend_id
-              , u.nickname as usernickname
+              , u.nickname
            from relation r
           inner join "user" u
              on u.id = r.friend_id
@@ -26,7 +26,7 @@ export class CommunityService {
          select a.id as answerId
              , b.id      as bucketId
              , b.user_id as userId
-             , f.nickname
+             , f.nickname as usernickname
              , c.title   as challenge
              , m.detail  as mission
              , b.status  as bucket_status
