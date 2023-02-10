@@ -239,7 +239,7 @@ export class BucketsService {
         ;
     `)
     )[0];
-    if (answer.music) {
+    if (answer && answer.music) {
       answer.musicOpenGraph = await getUrlOpenGraphData(answer.music);
     }
     return answer;
